@@ -26,4 +26,8 @@
     <declare-styleable name="NamedAddressItem">
         <attr name="show_named_address_separator" format="boolean" />
     </declare-styleable>
+
+    <declare-styleable name="SafeInputView">
+        <attr name="address_hint" format="string" />
+    </declare-styleable>
 </resources>

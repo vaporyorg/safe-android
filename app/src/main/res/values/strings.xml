@@ -126,9 +126,10 @@
     <string name="settings_app_advanced">Advanced</string>
 
     <string name="send_funds_title">Send funds</string>
-    <string name="send_funds_disclaimer">This is a developer\'s playground; no guarantees are made on quality</string>
+    <string name="send_funds_disclaimer">This is a developer\'s playground; no guarantees are made on quality or security</string>
     <string name="retrieving_safe_nonce_on_chain">Retrieving current Safe nonce from chain.</string>
     <string name="retrieved_safe_nonce_on_chain">Nonce : %1$s</string>
+    <string name="send_funds_recipient_hint">Recipient address</string>
 
     <string name="ens_resolver_address">ENS RESOLVER ADDRESS</string>
     <string name="endpoints">ENDPOINTS</string>

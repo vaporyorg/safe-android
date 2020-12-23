@@ -21,6 +21,22 @@ class SafeInputView @JvmOverloads constructor(
 ) : LinearLayout(context, attrs, defStyleAttr) {
 
     private val binding = ViewSafeInputBinding.inflate(LayoutInflater.from(context), this)
+    private var hintString: String
+
+    init {
+        context.theme.obtainStyledAttributes(
+            attrs,
+            R.styleable.SafeInputView,
+            0, 0
+        ).apply {
+            try {
+                hintString = getString(R.styleable.SafeInputView_address_hint) ?: context.getString(R.string.enter_safe_address)
+                binding.address.text = hintString
+            } finally {
+                recycle()
+            }
+        }
+    }
 
     var address: Solidity.Address? = null
         private set
@@ -57,7 +73,7 @@ class SafeInputView @JvmOverloads constructor(
                     blockies.visible(false)
                     if (input.isBlank()) {
                         address.setTextColor(ResourcesCompat.getColor(resources, R.color.text_emphasis_low, context.theme))
-                        address.text = context.getString(R.string.enter_safe_address)
+                        address.text = hintString
 
                     } else {
                         address.setTextColor(ResourcesCompat.getColor(resources, R.color.text_emphasis_high, context.theme))
