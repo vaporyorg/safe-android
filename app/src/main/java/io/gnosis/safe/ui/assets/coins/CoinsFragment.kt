@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import io.gnosis.safe.R
@@ -14,6 +15,7 @@ import io.gnosis.safe.databinding.FragmentCoinsBinding
 import io.gnosis.safe.di.components.ViewComponent
 import io.gnosis.safe.errorSnackbar
 import io.gnosis.safe.toError
+import io.gnosis.safe.ui.assets.AssetsFragmentDirections
 import io.gnosis.safe.ui.base.BaseStateViewModel.ViewAction.ShowError
 import io.gnosis.safe.ui.base.BaseStateViewModel.ViewAction.UpdateActiveSafe
 import io.gnosis.safe.ui.base.adapter.Adapter
@@ -45,6 +47,7 @@ class CoinsFragment : BaseViewBindingFragment<FragmentCoinsBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         with(binding) {
+            sendFundsButton.setOnClickListener { findNavController().navigate(AssetsFragmentDirections.actionAssetsFragmentToSendFundsFragment()) }
             coins.adapter = adapter
             val dividerItemDecoration = DividerItemDecoration(context, LinearLayoutManager.VERTICAL)
             dividerItemDecoration.setDrawable(AppCompatResources.getDrawable(requireContext(), R.drawable.divider)!!)

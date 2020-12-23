@@ -239,4 +239,8 @@
         <item name="android:statusBarColor">@color/surface_04</item>
         <item name="android:navigationBarColor">@color/surface_04</item>
     </style>
+
+    <style name="Widget.MaterialComponents.FloatingActionButton" parent="Widget.Design.FloatingActionButton">
+        <item name="backgroundTint">?attr/colorSecondary</item>
+    </style>
 </resources>

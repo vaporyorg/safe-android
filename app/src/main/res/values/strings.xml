@@ -124,6 +124,9 @@
     <string name="settings_app_network">Network</string>
     <string name="settings_app_advanced">Advanced</string>
 
+    <string name="send_funds_title">Send funds</string>
+    <string name="send_funds_disclaimer">This is a developer\'s playground; no guarantees are made on quality</string>
+
     <string name="ens_resolver_address">ENS RESOLVER ADDRESS</string>
     <string name="endpoints">ENDPOINTS</string>
     <string name="rpc_endpoint">RPC endpoint</string>

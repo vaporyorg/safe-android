@@ -41,6 +41,9 @@
         <action
             android:id="@+id/action_assetsFragment_to_collectiblesDetailsFragment"
             app:destination="@id/collectiblesDetailsFragment" />
+        <action
+            android:id="@+id/action_assetsFragment_to_sendFundsFragment"
+            app:destination="@id/sendFundsFragment" />
 
     </fragment>
 
@@ -375,5 +378,10 @@
         android:name="io.gnosis.safe.ui.settings.safe.AdvancedSafeSettingsFragment"
         android:label="AdvancedSafeSettingsFragment"
         tools:layout="@layout/fragment_settings_safe_advanced" />
+    <fragment
+        android:id="@+id/sendFundsFragment"
+        android:name="io.gnosis.safe.ui.beggar.donate.SendFundsFragment"
+        android:label="SendFundsFragment"
+        tools:layout="@layout/fragment_send_funds" />
 
 </navigation>

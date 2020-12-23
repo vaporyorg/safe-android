@@ -10,6 +10,7 @@ import io.gnosis.safe.di.ViewModelKey
 import io.gnosis.safe.ui.assets.AssetsViewModel
 import io.gnosis.safe.ui.assets.coins.CoinsViewModel
 import io.gnosis.safe.ui.assets.collectibles.CollectiblesViewModel
+import io.gnosis.safe.ui.beggar.donate.SendFundsViewModel
 import io.gnosis.safe.ui.dialogs.EnsInputViewModel
 import io.gnosis.safe.ui.safe.add.AddSafeNameViewModel
 import io.gnosis.safe.ui.safe.add.AddSafeViewModel
@@ -137,6 +138,11 @@ abstract class ViewModelFactoryModule {
     @IntoMap
     @ViewModelKey(AppFiatViewModel::class)
     abstract fun providesAppFiatViewModel(viewModel: AppFiatViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(SendFundsViewModel::class)
+    abstract fun providesSendFundsViewModelViewModel(viewModel: SendFundsViewModel): ViewModel
 
     @Binds
     @Singleton
