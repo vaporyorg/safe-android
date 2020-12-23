@@ -56,6 +56,7 @@
     <string name="error_description_tx_confirmation">Failed to confirm transaction</string>
     <string name="error_description_seed_phrase">Can\'t use this seed phrase</string>
     <string name="error_description_fiat">Failed to load supported fiat list</string>
+    <string name="error_description_send_funds">Failed to load transactions</string>
 
     <string name="error_network_no_internet_reason">device is not connected to the Internet</string>
     <string name="error_network_no_internet_fix">Please try again when Internet is available</string>
@@ -126,6 +127,8 @@
 
     <string name="send_funds_title">Send funds</string>
     <string name="send_funds_disclaimer">This is a developer\'s playground; no guarantees are made on quality</string>
+    <string name="retrieving_safe_nonce_on_chain">Retrieving current Safe nonce from chain.</string>
+    <string name="retrieved_safe_nonce_on_chain">Nonce : %1$s</string>
 
     <string name="ens_resolver_address">ENS RESOLVER ADDRESS</string>
     <string name="endpoints">ENDPOINTS</string>
