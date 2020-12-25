@@ -69,7 +69,8 @@ class SendFundsFragment : BaseViewBindingFragment<FragmentSendFundsBinding>() {
                 is BaseStateViewModel.ViewAction.ShowError -> {
                     binding.progress.visible(false)
                     val error = actionView.error.toError()
-                    errorSnackbar(requireView(), error.message(requireContext(), R.string.error_description_send_funds))
+                    val message = if (actionView.error is CantTransfer) R.string.error_you_are_not_the_owner else R.string.error_description_send_funds
+                    errorSnackbar(requireView(), error.message(requireContext(), message))
 
                 }
             }
