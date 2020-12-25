@@ -3,17 +3,21 @@ package io.gnosis.safe.ui.beggar.donate
 import androidx.annotation.StringRes
 import io.gnosis.data.models.core.SafeTransaction
 import io.gnosis.data.repositories.SafeRepository
+import io.gnosis.data.repositories.TransactionRepository
 import io.gnosis.safe.R
 import io.gnosis.safe.ui.base.AppDispatchers
 import io.gnosis.safe.ui.base.BaseStateViewModel
 import io.gnosis.safe.ui.base.PublishViewModel
 import io.gnosis.safe.utils.OwnerCredentialsRepository
 import pm.gnosis.model.Solidity
+import pm.gnosis.utils.addHexPrefix
+import pm.gnosis.utils.toHex
 import javax.inject.Inject
 
 class SendFundsViewModel
 @Inject constructor(
     private val safeRepository: SafeRepository,
+    private val transactionRepository: TransactionRepository,
     private val ownerCredentialsRepository: OwnerCredentialsRepository,
     appDispatchers: AppDispatchers
 ) : BaseStateViewModel<SendFundsState>(appDispatchers) {
@@ -30,7 +34,22 @@ class SendFundsViewModel
 
             val safeTransaction = SafeTransaction.buildEthTransfer(receiver = receiver, value = amount.toBigInteger(), nonce = nonce)
             val transactionHash = safeRepository.sendEthTxHash(safe = activeSafe, safeTransaction = safeTransaction)
-            updateState { SendFundsState(UserMessageWithArgs(R.string.retrieved_transaction_hash_on_chain, listOf(transactionHash))) }
+            updateState { SendFundsState(UserMessageWithArgs(R.string.retrieved_transaction_hash_on_chain, listOf(transactionHash.toHex()))) }
+
+            val privateKey = ownerCredentialsRepository.retrieveCredentials() ?: throw NullOwnerKey
+            val signature = TransactionRepository.sign(privateKey.key, transactionHash)
+
+            val coreTransaction = safeTransaction.toCoreTransaction(
+                senderOwner = privateKey.address, transactionHash = transactionHash.toHex().addHexPrefix(), signature = signature.addHexPrefix()
+            )
+
+            runCatching { transactionRepository.proposeTransaction(activeSafe, coreTransaction) }
+                .onSuccess {
+                    updateState { SendFundsState(UserMessage(R.string.transaction_proposed_successfully)) }
+                }
+                .onFailure {
+                    updateState { SendFundsState(ViewAction.ShowError(it)) }
+                }
         }
     }
 
@@ -42,6 +61,7 @@ class SendFundsViewModel
 }
 
 object CantTransfer : Throwable()
+object NullOwnerKey : Throwable()
 
 data class UserMessage(@StringRes val messageId: Int) : BaseStateViewModel.ViewAction
 data class UserMessageWithArgs(@StringRes val messageId: Int, val arguments: List<Any>) : BaseStateViewModel.ViewAction

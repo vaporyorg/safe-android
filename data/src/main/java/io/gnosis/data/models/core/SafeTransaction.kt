@@ -17,7 +17,7 @@ data class SafeTransaction(
     val refundreceiver: Solidity.Address,
     val _nonce: Solidity.UInt256
 ) {
-    fun toCoreTransaction(safe: Solidity.Address, signature: String, transactionHash: String): CoreTransactionRequest =
+    fun toCoreTransaction(senderOwner: Solidity.Address, signature: String, transactionHash: String): CoreTransactionRequest =
         CoreTransactionRequest(
             to = to,
             value = value.value,
@@ -30,7 +30,7 @@ data class SafeTransaction(
             refundReceiver = refundreceiver,
             nonce = _nonce.value,
             contractTransactionHash = transactionHash,
-            sender = safe,
+            sender = senderOwner,
             signature = signature
         )
 

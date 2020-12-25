@@ -50,7 +50,7 @@ class RepositoryModule {
 
     @Provides
     @Singleton
-    fun providesTransactionRepository(gatewayApi: GatewayApi): TransactionRepository =
-        TransactionRepository(gatewayApi)
+    fun providesTransactionRepository(gatewayApi: GatewayApi, transactionServiceApi: TransactionServiceApi): TransactionRepository =
+        TransactionRepository(gatewayApi, transactionServiceApi)
 
 }

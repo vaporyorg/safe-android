@@ -132,6 +132,7 @@
     <string name="retrieved_safe_nonce_on_chain">Nonce : %1$s</string>
     <string name="retrieved_transaction_hash_on_chain">Transaction hash : %1$s</string>
     <string name="send_funds_recipient_hint">Recipient address</string>
+    <string name="transaction_proposed_successfully">Successfully proposed transaction</string>
 
     <string name="ens_resolver_address">ENS RESOLVER ADDRESS</string>
     <string name="endpoints">ENDPOINTS</string>

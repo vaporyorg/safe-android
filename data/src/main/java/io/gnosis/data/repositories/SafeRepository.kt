@@ -109,7 +109,7 @@ class SafeRepository(
             ).result()!!
         ).param0.value
 
-    suspend fun sendEthTxHash(safe: Solidity.Address, safeTransaction: SafeTransaction): String =
+    suspend fun sendEthTxHash(safe: Solidity.Address, safeTransaction: SafeTransaction): ByteArray =
         with(safeTransaction) {
             GnosisSafe.GetTransactionHash.decode(
                 ethereumRepository.request(
@@ -131,7 +131,7 @@ class SafeRepository(
                         )
                     )
                 ).result()!!
-            ).param0.byteArray.toHex()
+            ).param0.byteArray
         }
 
     companion object {
