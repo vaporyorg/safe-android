@@ -21,8 +21,12 @@ class SendFundsViewModel
         safeLaunch {
             updateState { SendFundsState(UserMessage(R.string.retrieving_safe_nonce_on_chain)) }
             val activeSafe = safeRepository.getActiveSafe()!!.address
-            val nonce = safeRepository.getSafeNonce(activeSafe).toString()
-            updateState { SendFundsState(UserMessageWithArgs(R.string.retrieved_safe_nonce_on_chain, listOf(nonce))) }
+            val nonce = safeRepository.getSafeNonce(activeSafe)
+            updateState { SendFundsState(UserMessageWithArgs(R.string.retrieved_safe_nonce_on_chain, listOf(nonce.toString()))) }
+            val transactionHash = safeRepository.sendEthTxHash(
+                safe = activeSafe, receiver = receiver, value = amount.toBigInteger(), nonce = nonce
+            )
+            updateState { SendFundsState(UserMessageWithArgs(R.string.retrieved_safe_nonce_on_chain, listOf(transactionHash))) }
         }
     }
 }

@@ -40,7 +40,6 @@ class SendFundsFragment : BaseViewBindingFragment<FragmentSendFundsBinding>() {
         component.inject(this)
     }
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         with(binding) {

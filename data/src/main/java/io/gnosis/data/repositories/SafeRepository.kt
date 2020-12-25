@@ -19,6 +19,8 @@ import pm.gnosis.svalinn.common.PreferencesManager
 import pm.gnosis.svalinn.common.utils.edit
 import pm.gnosis.utils.asEthereumAddress
 import pm.gnosis.utils.asEthereumAddressString
+import pm.gnosis.utils.hexToByteArray
+import pm.gnosis.utils.toHex
 import java.math.BigInteger
 
 class SafeRepository(
@@ -105,6 +107,29 @@ class SafeRepository(
                 EthCall(transaction = Transaction(address = safeAddress, data = GnosisSafe.Nonce.encode()))
             ).result()!!
         ).param0.value
+
+    suspend fun sendEthTxHash(safe: Solidity.Address, receiver: Solidity.Address, value: BigInteger, nonce: BigInteger): String =
+        GnosisSafe.GetTransactionHash.decode(
+            ethereumRepository.request(
+                EthCall(
+                    transaction = Transaction(
+                        safe,
+                        data = GnosisSafe.GetTransactionHash.encode(
+                            receiver,
+                            Solidity.UInt256(value),
+                            Solidity.Bytes("0x".hexToByteArray()),
+                            Solidity.UInt8(BigInteger.ZERO),
+                            Solidity.UInt256(BigInteger.ZERO),
+                            Solidity.UInt256(BigInteger.ZERO),
+                            Solidity.UInt256(BigInteger.ZERO),
+                            Solidity.Address(BigInteger.ZERO),
+                            Solidity.Address(BigInteger.ZERO),
+                            Solidity.UInt256(nonce)
+                        )
+                    )
+                )
+            ).result()!!
+        ).param0.byteArray.toHex()
 
     companion object {
 
