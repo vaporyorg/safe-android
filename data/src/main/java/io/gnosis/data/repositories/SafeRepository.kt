@@ -8,6 +8,7 @@ import io.gnosis.data.db.daos.SafeDao
 import io.gnosis.data.models.Safe
 import io.gnosis.data.models.SafeInfo
 import io.gnosis.data.models.SafeMetaData
+import io.gnosis.data.models.core.SafeTransaction
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.*
 import pm.gnosis.crypto.utils.asEthereumAddressChecksumString
@@ -108,28 +109,30 @@ class SafeRepository(
             ).result()!!
         ).param0.value
 
-    suspend fun sendEthTxHash(safe: Solidity.Address, receiver: Solidity.Address, value: BigInteger, nonce: BigInteger): String =
-        GnosisSafe.GetTransactionHash.decode(
-            ethereumRepository.request(
-                EthCall(
-                    transaction = Transaction(
-                        safe,
-                        data = GnosisSafe.GetTransactionHash.encode(
-                            receiver,
-                            Solidity.UInt256(value),
-                            Solidity.Bytes("0x".hexToByteArray()),
-                            Solidity.UInt8(BigInteger.ZERO),
-                            Solidity.UInt256(BigInteger.ZERO),
-                            Solidity.UInt256(BigInteger.ZERO),
-                            Solidity.UInt256(BigInteger.ZERO),
-                            Solidity.Address(BigInteger.ZERO),
-                            Solidity.Address(BigInteger.ZERO),
-                            Solidity.UInt256(nonce)
+    suspend fun sendEthTxHash(safe: Solidity.Address, safeTransaction: SafeTransaction): String =
+        with(safeTransaction) {
+            GnosisSafe.GetTransactionHash.decode(
+                ethereumRepository.request(
+                    EthCall(
+                        transaction = Transaction(
+                            safe,
+                            data = GnosisSafe.GetTransactionHash.encode(
+                                to,
+                                value,
+                                data,
+                                operation,
+                                safetxgas,
+                                basegas,
+                                gasprice,
+                                gastoken,
+                                refundreceiver,
+                                _nonce
+                            )
                         )
                     )
-                )
-            ).result()!!
-        ).param0.byteArray.toHex()
+                ).result()!!
+            ).param0.byteArray.toHex()
+        }
 
     companion object {
 

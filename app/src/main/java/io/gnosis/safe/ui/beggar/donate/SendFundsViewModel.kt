@@ -1,6 +1,7 @@
 package io.gnosis.safe.ui.beggar.donate
 
 import androidx.annotation.StringRes
+import io.gnosis.data.models.core.SafeTransaction
 import io.gnosis.data.repositories.SafeRepository
 import io.gnosis.safe.R
 import io.gnosis.safe.ui.base.AppDispatchers
@@ -26,9 +27,9 @@ class SendFundsViewModel
             updateState { SendFundsState(UserMessage(R.string.retrieving_safe_nonce_on_chain)) }
             val nonce = safeRepository.getSafeNonce(activeSafe)
             updateState { SendFundsState(UserMessageWithArgs(R.string.retrieved_safe_nonce_on_chain, listOf(nonce.toString()))) }
-            val transactionHash = safeRepository.sendEthTxHash(
-                safe = activeSafe, receiver = receiver, value = amount.toBigInteger(), nonce = nonce
-            )
+
+            val safeTransaction = SafeTransaction.buildEthTransfer(receiver = receiver, value = amount.toBigInteger(), nonce = nonce)
+            val transactionHash = safeRepository.sendEthTxHash(safe = activeSafe, safeTransaction = safeTransaction)
             updateState { SendFundsState(UserMessageWithArgs(R.string.retrieved_transaction_hash_on_chain, listOf(transactionHash))) }
         }
     }
