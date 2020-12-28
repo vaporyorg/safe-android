@@ -2,32 +2,23 @@ package io.gnosis.data.repositories
 
 import android.content.SharedPreferences
 import io.gnosis.contracts.BuildConfig
-import io.gnosis.contracts.GnosisSafe
 import io.gnosis.data.backend.TransactionServiceApi
 import io.gnosis.data.db.daos.SafeDao
 import io.gnosis.data.models.Safe
 import io.gnosis.data.models.SafeInfo
 import io.gnosis.data.models.SafeMetaData
-import io.gnosis.data.models.core.SafeTransaction
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.*
 import pm.gnosis.crypto.utils.asEthereumAddressChecksumString
-import pm.gnosis.ethereum.EthCall
-import pm.gnosis.ethereum.EthereumRepository
 import pm.gnosis.model.Solidity
-import pm.gnosis.models.Transaction
 import pm.gnosis.svalinn.common.PreferencesManager
 import pm.gnosis.svalinn.common.utils.edit
 import pm.gnosis.utils.asEthereumAddress
 import pm.gnosis.utils.asEthereumAddressString
-import pm.gnosis.utils.hexToByteArray
-import pm.gnosis.utils.toHex
-import java.math.BigInteger
 
 class SafeRepository(
     private val safeDao: SafeDao,
     private val preferencesManager: PreferencesManager,
-    private val ethereumRepository: EthereumRepository,
     private val transactionServiceApi: TransactionServiceApi
 ) {
 
@@ -100,38 +91,6 @@ class SafeRepository(
     suspend fun getSafeInfo(safeAddress: Solidity.Address): SafeInfo =
         transactionServiceApi.getSafeInfo(safeAddress.asEthereumAddressChecksumString()).let {
             SafeInfo(it.address, it.nonce, it.threshold, it.owners, it.masterCopy, it.modules, it.fallbackHandler)
-        }
-
-    suspend fun getSafeNonce(safeAddress: Solidity.Address): BigInteger =
-        GnosisSafe.Nonce.decode(
-            ethereumRepository.request(
-                EthCall(transaction = Transaction(address = safeAddress, data = GnosisSafe.Nonce.encode()))
-            ).result()!!
-        ).param0.value
-
-    suspend fun sendEthTxHash(safe: Solidity.Address, safeTransaction: SafeTransaction): ByteArray =
-        with(safeTransaction) {
-            GnosisSafe.GetTransactionHash.decode(
-                ethereumRepository.request(
-                    EthCall(
-                        transaction = Transaction(
-                            safe,
-                            data = GnosisSafe.GetTransactionHash.encode(
-                                to,
-                                value,
-                                data,
-                                operation,
-                                safetxgas,
-                                basegas,
-                                gasprice,
-                                gastoken,
-                                refundreceiver,
-                                _nonce
-                            )
-                        )
-                    )
-                ).result()!!
-            ).param0.byteArray
         }
 
     companion object {

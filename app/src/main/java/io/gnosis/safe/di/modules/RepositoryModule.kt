@@ -20,10 +20,9 @@ class RepositoryModule {
     fun provideSafeRepository(
         safeDao: SafeDao,
         preferencesManager: PreferencesManager,
-        ethereumRepository: EthereumRepository,
         transactionServiceApi: TransactionServiceApi
     ): SafeRepository {
-        return SafeRepository(safeDao, preferencesManager, ethereumRepository, transactionServiceApi)
+        return SafeRepository(safeDao, preferencesManager, transactionServiceApi)
     }
 
     @Provides
@@ -52,5 +51,10 @@ class RepositoryModule {
     @Singleton
     fun providesTransactionRepository(gatewayApi: GatewayApi, transactionServiceApi: TransactionServiceApi): TransactionRepository =
         TransactionRepository(gatewayApi, transactionServiceApi)
+
+    @Provides
+    @Singleton
+    fun providesTransactionRepositoryExt(gatewayApi: GatewayApi, ethereumRepository: EthereumRepository): TransactionRepositoryExt =
+        TransactionRepositoryExt(gatewayApi, ethereumRepository)
 
 }

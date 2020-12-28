@@ -23,9 +23,11 @@ class TransactionRepository(
 
     suspend fun getQueuedTransactions(safeAddress: Solidity.Address): Page<TxListEntry> =
         gatewayApi.loadTransactionsQueue(safeAddress.asEthereumAddressChecksumString())
+            .adjustLinks() //TODO remove
 
     suspend fun getHistoryTransactions(safeAddress: Solidity.Address): Page<TxListEntry> =
         gatewayApi.loadTransactionsHistory(safeAddress.asEthereumAddressChecksumString())
+            .adjustLinks() //TODO remove
 
     suspend fun loadTransactionsPage(pageLink: String): Page<TxListEntry> =
         gatewayApi.loadTransactionsPage(pageLink)

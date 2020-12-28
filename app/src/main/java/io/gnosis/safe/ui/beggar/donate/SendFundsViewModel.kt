@@ -4,6 +4,7 @@ import androidx.annotation.StringRes
 import io.gnosis.data.models.core.SafeTransaction
 import io.gnosis.data.repositories.SafeRepository
 import io.gnosis.data.repositories.TransactionRepository
+import io.gnosis.data.repositories.TransactionRepositoryExt
 import io.gnosis.safe.R
 import io.gnosis.safe.ui.base.AppDispatchers
 import io.gnosis.safe.ui.base.BaseStateViewModel
@@ -17,6 +18,7 @@ import javax.inject.Inject
 class SendFundsViewModel
 @Inject constructor(
     private val safeRepository: SafeRepository,
+    private val transactionRepositoryExt: TransactionRepositoryExt,
     private val transactionRepository: TransactionRepository,
     private val ownerCredentialsRepository: OwnerCredentialsRepository,
     appDispatchers: AppDispatchers
@@ -29,11 +31,11 @@ class SendFundsViewModel
             val activeSafe = safeRepository.getActiveSafe()!!.address
             verifyOwner(activeSafe)
             updateState { SendFundsState(UserMessage(R.string.retrieving_safe_nonce_on_chain)) }
-            val nonce = safeRepository.getSafeNonce(activeSafe)
+            val nonce = transactionRepositoryExt.getSafeNonce(activeSafe)
             updateState { SendFundsState(UserMessageWithArgs(R.string.retrieved_safe_nonce_on_chain, listOf(nonce.toString()))) }
 
             val safeTransaction = SafeTransaction.buildEthTransfer(receiver = receiver, value = amount.toBigInteger(), nonce = nonce)
-            val transactionHash = safeRepository.sendEthTxHash(safe = activeSafe, safeTransaction = safeTransaction)
+            val transactionHash = transactionRepositoryExt.sendEthTxHash(safe = activeSafe, safeTransaction = safeTransaction)
             updateState { SendFundsState(UserMessageWithArgs(R.string.retrieved_transaction_hash_on_chain, listOf(transactionHash.toHex()))) }
 
             val privateKey = ownerCredentialsRepository.retrieveCredentials() ?: throw NullOwnerKey
