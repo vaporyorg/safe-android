@@ -19,7 +19,6 @@ class SendFundsViewModel
 @Inject constructor(
     private val safeRepository: SafeRepository,
     private val transactionRepositoryExt: TransactionRepositoryExt,
-    private val transactionRepository: TransactionRepository,
     private val ownerCredentialsRepository: OwnerCredentialsRepository,
     appDispatchers: AppDispatchers
 ) : BaseStateViewModel<SendFundsState>(appDispatchers) {
@@ -39,13 +38,13 @@ class SendFundsViewModel
             updateState { SendFundsState(UserMessageWithArgs(R.string.retrieved_transaction_hash_on_chain, listOf(transactionHash.toHex()))) }
 
             val privateKey = ownerCredentialsRepository.retrieveCredentials() ?: throw NullOwnerKey
-            val signature = TransactionRepository.sign(privateKey.key, transactionHash)
+            val signature = TransactionRepositoryExt.sign(privateKey.key, transactionHash)
 
             val coreTransaction = safeTransaction.toCoreTransaction(
                 senderOwner = privateKey.address, transactionHash = transactionHash.toHex().addHexPrefix(), signature = signature.addHexPrefix()
             )
 
-            runCatching { transactionRepository.proposeTransaction(activeSafe, coreTransaction) }
+            runCatching { transactionRepositoryExt.proposeTransaction(activeSafe, coreTransaction) }
                 .onSuccess {
                     updateState { SendFundsState(UserMessage(R.string.transaction_proposed_successfully)) }
                 }

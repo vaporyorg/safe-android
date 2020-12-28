@@ -49,12 +49,16 @@ class RepositoryModule {
 
     @Provides
     @Singleton
-    fun providesTransactionRepository(gatewayApi: GatewayApi, transactionServiceApi: TransactionServiceApi): TransactionRepository =
-        TransactionRepository(gatewayApi, transactionServiceApi)
+    fun providesTransactionRepository(gatewayApi: GatewayApi): TransactionRepository =
+        TransactionRepository(gatewayApi)
 
     @Provides
     @Singleton
-    fun providesTransactionRepositoryExt(gatewayApi: GatewayApi, ethereumRepository: EthereumRepository): TransactionRepositoryExt =
-        TransactionRepositoryExt(gatewayApi, ethereumRepository)
+    fun providesTransactionRepositoryExt(
+        gatewayApi: GatewayApi,
+        transactionServiceApi: TransactionServiceApi,
+        ethereumRepository: EthereumRepository
+    ): TransactionRepositoryExt =
+        TransactionRepositoryExt(gatewayApi, transactionServiceApi, ethereumRepository)
 
 }

@@ -1,9 +1,7 @@
 package io.gnosis.data.repositories
 
 import io.gnosis.data.backend.GatewayApi
-import io.gnosis.data.backend.TransactionServiceApi
 import io.gnosis.data.models.Page
-import io.gnosis.data.models.core.CoreTransactionRequest
 import io.gnosis.data.models.transaction.Param
 import io.gnosis.data.models.transaction.TransactionConfirmationRequest
 import io.gnosis.data.models.transaction.TransactionDetails
@@ -17,17 +15,14 @@ import pm.gnosis.utils.removeHexPrefix
 import java.math.BigInteger
 
 class TransactionRepository(
-    private val gatewayApi: GatewayApi,
-    private val transactionServiceApi: TransactionServiceApi
+    private val gatewayApi: GatewayApi
 ) {
 
     suspend fun getQueuedTransactions(safeAddress: Solidity.Address): Page<TxListEntry> =
         gatewayApi.loadTransactionsQueue(safeAddress.asEthereumAddressChecksumString())
-            .adjustLinks() //TODO remove
 
     suspend fun getHistoryTransactions(safeAddress: Solidity.Address): Page<TxListEntry> =
         gatewayApi.loadTransactionsHistory(safeAddress.asEthereumAddressChecksumString())
-            .adjustLinks() //TODO remove
 
     suspend fun loadTransactionsPage(pageLink: String): Page<TxListEntry> =
         gatewayApi.loadTransactionsPage(pageLink)
@@ -42,16 +37,6 @@ class TransactionRepository(
         KeyPair.fromPrivate(ownerKey.toByteArray())
             .sign(safeTxHash.hexToByteArray())
             .toSignatureString()
-
-    suspend fun proposeTransaction(safe: Solidity.Address, coreTransactionRequest: CoreTransactionRequest) =
-        transactionServiceApi.submitTransactions(safe.asEthereumAddressChecksumString(), coreTransactionRequest)
-
-    companion object {
-        fun sign(ownerKey: BigInteger, hash: ByteArray): String =
-            KeyPair.fromPrivate(ownerKey.toByteArray())
-                .sign(hash)
-                .toSignatureString()
-    }
 }
 
 fun List<Param>?.getAddressValueByName(name: String): Solidity.Address? {
