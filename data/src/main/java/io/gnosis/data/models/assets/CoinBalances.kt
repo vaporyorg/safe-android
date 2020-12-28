@@ -1,7 +1,11 @@
 package io.gnosis.data.models.assets
 
+import android.os.Parcelable
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
+import io.gnosis.data.models.ext.SolidityAddressParceler
+import kotlinx.android.parcel.Parcelize
+import kotlinx.android.parcel.TypeParceler
 import pm.gnosis.common.adapters.moshi.BigDecimalNumber
 import pm.gnosis.common.adapters.moshi.DecimalNumber
 import pm.gnosis.model.Solidity
@@ -22,6 +26,8 @@ data class Balance(
 )
 
 @JsonClass(generateAdapter = true)
+@Parcelize
+@TypeParceler<Solidity.Address, SolidityAddressParceler>
 data class TokenInfo(
     @Json(name = "type") val tokenType: TokenType,
     @Json(name = "address") val address: Solidity.Address,
@@ -29,6 +35,6 @@ data class TokenInfo(
     @Json(name = "symbol") val symbol: String = "",
     @Json(name = "name") val name: String = "",
     @Json(name = "logoUri") val logoUri: String?
-)
+) : Parcelable
 
 enum class TokenType { NATIVE_CURRENCY, ERC20, ERC721 }

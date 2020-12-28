@@ -1,6 +1,7 @@
 package io.gnosis.safe.ui.beggar.donate
 
 import androidx.annotation.StringRes
+import io.gnosis.data.models.assets.TokenInfo
 import io.gnosis.data.models.ext.SafeTransaction
 import io.gnosis.data.models.ext.SendEthRequest
 import io.gnosis.data.repositories.SafeRepository
@@ -21,6 +22,8 @@ class SendFundsViewModel
     private val ownerCredentialsRepository: OwnerCredentialsRepository,
     appDispatchers: AppDispatchers
 ) : BaseStateViewModel<SendFundsState>(appDispatchers) {
+
+    var selectedToken: TokenInfo? = null
 
     override fun initialState(): SendFundsState = SendFundsState(ViewAction.None)
 

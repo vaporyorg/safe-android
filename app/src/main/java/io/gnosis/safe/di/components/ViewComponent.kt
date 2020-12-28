@@ -9,6 +9,7 @@ import io.gnosis.safe.ui.assets.coins.CoinsFragment
 import io.gnosis.safe.ui.assets.collectibles.CollectiblesFragment
 import io.gnosis.safe.ui.assets.collectibles.details.CollectiblesDetailsFragment
 import io.gnosis.safe.ui.beggar.donate.SendFundsFragment
+import io.gnosis.safe.ui.beggar.token_selector.TokenSelectorActivity
 import io.gnosis.safe.ui.dialogs.EnsInputDialog
 import io.gnosis.safe.ui.safe.add.AddSafeFragment
 import io.gnosis.safe.ui.safe.add.AddSafeNameFragment
@@ -42,6 +43,7 @@ interface ViewComponent {
 
     fun inject(activity: StartActivity)
 
+    fun inject(activity: TokenSelectorActivity)
     // Fragments
 
     fun inject(fragment: AddSafeFragment)

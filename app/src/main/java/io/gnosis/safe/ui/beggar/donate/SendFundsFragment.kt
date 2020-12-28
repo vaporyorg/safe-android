@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
+import io.gnosis.data.models.assets.TokenInfo
 import io.gnosis.safe.R
 import io.gnosis.safe.ScreenId
 import io.gnosis.safe.databinding.FragmentSendFundsBinding
@@ -18,6 +19,7 @@ import io.gnosis.safe.helpers.AddressInputHelper
 import io.gnosis.safe.toError
 import io.gnosis.safe.ui.base.BaseStateViewModel
 import io.gnosis.safe.ui.base.fragment.BaseViewBindingFragment
+import io.gnosis.safe.ui.beggar.token_selector.TokenSelectorActivity
 import pm.gnosis.model.Solidity
 import pm.gnosis.svalinn.common.utils.visible
 import timber.log.Timber
@@ -54,6 +56,12 @@ class SendFundsFragment : BaseViewBindingFragment<FragmentSendFundsBinding>() {
             toAddress.setOnClickListener {
                 addressInputHelper.showDialog()
             }
+            changeTokenButton.setOnClickListener {
+                startActivityForResult(
+                    TokenSelectorActivity.buildIntent(requireContext()),
+                    TokenSelectorActivity.TOKEN_INFO_REQUEST_CODE
+                )
+            }
         }
     }
 
@@ -69,7 +77,8 @@ class SendFundsFragment : BaseViewBindingFragment<FragmentSendFundsBinding>() {
                 is BaseStateViewModel.ViewAction.ShowError -> {
                     binding.progress.visible(false)
                     val error = actionView.error.toError()
-                    val message = if (actionView.error is CantTransfer) R.string.error_you_are_not_the_owner else R.string.error_description_send_funds
+                    val message =
+                        if (actionView.error is CantTransfer) R.string.error_you_are_not_the_owner else R.string.error_description_send_funds
                     errorSnackbar(requireView(), error.message(requireContext(), message))
 
                 }
@@ -90,7 +99,11 @@ class SendFundsFragment : BaseViewBindingFragment<FragmentSendFundsBinding>() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        addressInputHelper.handleResult(requestCode, resultCode, data)
+        if (requestCode == TokenSelectorActivity.TOKEN_INFO_REQUEST_CODE) {
+            viewModel.selectedToken = data?.getParcelableExtra(TokenSelectorActivity.TOKEN_INFO_PARAM_NAME)
+        } else {
+            addressInputHelper.handleResult(requestCode, resultCode, data)
+        }
     }
 
     private fun updateAddress(address: Solidity.Address) {

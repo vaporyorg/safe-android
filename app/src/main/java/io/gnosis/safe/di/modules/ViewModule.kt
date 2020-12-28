@@ -13,6 +13,7 @@ import io.gnosis.safe.ui.assets.AssetsViewModel
 import io.gnosis.safe.ui.assets.coins.CoinsViewModel
 import io.gnosis.safe.ui.assets.collectibles.CollectiblesViewModel
 import io.gnosis.safe.ui.beggar.donate.SendFundsViewModel
+import io.gnosis.safe.ui.beggar.token_selector.TokenSelectorViewModel
 import io.gnosis.safe.ui.dialogs.EnsInputViewModel
 import io.gnosis.safe.ui.safe.add.AddSafeNameViewModel
 import io.gnosis.safe.ui.safe.add.AddSafeViewModel
@@ -150,5 +151,9 @@ class ViewModule(
 
     @Provides
     @ForView
-    fun providesSendFundsFragment(provider: ViewModelProvider) = provider[SendFundsViewModel::class.java]
+    fun providesSendFundsViewModel(provider: ViewModelProvider) = provider[SendFundsViewModel::class.java]
+
+    @Provides
+    @ForView
+    fun providesTokenSelectorViewModel(provider: ViewModelProvider) = provider[TokenSelectorViewModel::class.java]
 }
