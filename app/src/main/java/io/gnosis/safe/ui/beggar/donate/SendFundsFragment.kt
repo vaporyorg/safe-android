@@ -100,7 +100,9 @@ class SendFundsFragment : BaseViewBindingFragment<FragmentSendFundsBinding>() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == TokenSelectorActivity.TOKEN_INFO_REQUEST_CODE) {
-            viewModel.selectedToken = data?.getParcelableExtra(TokenSelectorActivity.TOKEN_INFO_PARAM_NAME)
+            val tokenInfo: TokenInfo? = data?.getParcelableExtra(TokenSelectorActivity.TOKEN_INFO_PARAM_NAME)
+            viewModel.selectedToken = tokenInfo
+            binding.tokenSymbol.setText(tokenInfo?.symbol)
         } else {
             addressInputHelper.handleResult(requestCode, resultCode, data)
         }

@@ -1,6 +1,7 @@
 package io.gnosis.safe.ui.beggar.token_selector
 
 import io.gnosis.data.models.assets.TokenInfo
+import io.gnosis.data.repositories.SafeRepository
 import io.gnosis.data.repositories.TokenRepository
 import io.gnosis.safe.ui.base.AppDispatchers
 import io.gnosis.safe.ui.base.BaseStateViewModel
@@ -11,14 +12,14 @@ import javax.inject.Inject
 class TokenSelectorViewModel
 @Inject constructor(
     private val tokenRepository: TokenRepository,
-    private val ownerCredentialsRepository: OwnerCredentialsRepository,
+    private val safeRepository: SafeRepository,
     appDispatchers: AppDispatchers
 ) : PublishViewModel<TokenActivityState>(appDispatchers) {
 
     fun fetchAvailableTokens() {
         safeLaunch {
             runCatching {
-                val ownerAddress = ownerCredentialsRepository.retrieveCredentials()?.address!!
+                val ownerAddress = safeRepository.getActiveSafe()!!.address
                 tokenRepository.loadBalanceOf(ownerAddress).items.map { it.tokenInfo }
             }.onSuccess {
                 updateState { TokenActivityState(ShowAvailableTokens(it)) }
