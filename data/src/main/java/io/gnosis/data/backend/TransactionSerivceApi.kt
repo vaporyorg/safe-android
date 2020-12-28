@@ -2,7 +2,7 @@ package io.gnosis.data.backend
 
 import io.gnosis.data.BuildConfig
 import io.gnosis.data.backend.dto.SafeInfoDto
-import io.gnosis.data.models.core.CoreTransactionRequest
+import io.gnosis.data.models.ext.CoreTransactionRequest
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST

@@ -4,9 +4,11 @@ import io.gnosis.data.BuildConfig
 import io.gnosis.data.models.Page
 import io.gnosis.data.models.assets.CoinBalances
 import io.gnosis.data.models.assets.Collectible
+import io.gnosis.data.models.ext.SendEthRequest
 import io.gnosis.data.models.transaction.TransactionConfirmationRequest
 import io.gnosis.data.models.transaction.TransactionDetails
 import io.gnosis.data.models.transaction.TxListEntry
+import pm.gnosis.model.Solidity
 import retrofit2.http.*
 import java.util.*
 
@@ -32,13 +34,25 @@ interface GatewayApi {
 
     // Unified endpoints
     @GET("v1/safes/{address}/transactions/history")
-    suspend fun loadTransactionsHistory(@Path("address") address: String, @Query("timezone_offset") timezoneOffset: Int = TimeZone.getDefault().getOffset(Date().time)): Page<TxListEntry>
+    suspend fun loadTransactionsHistory(
+        @Path("address") address: String,
+        @Query("timezone_offset") timezoneOffset: Int = TimeZone.getDefault().getOffset(Date().time)
+    ): Page<TxListEntry>
 
     @GET("v1/safes/{address}/transactions/queued")
-    suspend fun loadTransactionsQueue(@Path("address") address: String, @Query("timezone_offset") timezoneOffset: Int = TimeZone.getDefault().getOffset(Date().time)): Page<TxListEntry>
+    suspend fun loadTransactionsQueue(
+        @Path("address") address: String,
+        @Query("timezone_offset") timezoneOffset: Int = TimeZone.getDefault().getOffset(Date().time)
+    ): Page<TxListEntry>
 
     @GET
     suspend fun loadTransactionsPage(@Url pageLink: String): Page<TxListEntry>
+
+    @POST("/v1/transactions/{safeAddress}/eth_transfers")
+    suspend fun sendEth(
+        @Path("safeAddress") safeAddress: String,
+        @Body sendEthRequest: SendEthRequest
+    )
 
     companion object {
         const val BASE_URL = BuildConfig.CLIENT_GATEWAY_URL

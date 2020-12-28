@@ -1,14 +1,13 @@
 package io.gnosis.safe.ui.beggar.donate
 
 import androidx.annotation.StringRes
-import io.gnosis.data.models.core.SafeTransaction
+import io.gnosis.data.models.ext.SafeTransaction
+import io.gnosis.data.models.ext.SendEthRequest
 import io.gnosis.data.repositories.SafeRepository
-import io.gnosis.data.repositories.TransactionRepository
 import io.gnosis.data.repositories.TransactionRepositoryExt
 import io.gnosis.safe.R
 import io.gnosis.safe.ui.base.AppDispatchers
 import io.gnosis.safe.ui.base.BaseStateViewModel
-import io.gnosis.safe.ui.base.PublishViewModel
 import io.gnosis.safe.utils.OwnerCredentialsRepository
 import pm.gnosis.model.Solidity
 import pm.gnosis.utils.addHexPrefix
@@ -40,11 +39,12 @@ class SendFundsViewModel
             val privateKey = ownerCredentialsRepository.retrieveCredentials() ?: throw NullOwnerKey
             val signature = TransactionRepositoryExt.sign(privateKey.key, transactionHash)
 
-            val coreTransaction = safeTransaction.toCoreTransaction(
+            val sendEthRequest = safeTransaction.toSendEthRequest(
                 senderOwner = privateKey.address, transactionHash = transactionHash.toHex().addHexPrefix(), signature = signature.addHexPrefix()
             )
-
-            runCatching { transactionRepositoryExt.proposeTransaction(activeSafe, coreTransaction) }
+            runCatching {
+                transactionRepositoryExt.proposeTransaction(activeSafe, sendEthRequest)
+            }
                 .onSuccess {
                     updateState { SendFundsState(UserMessage(R.string.transaction_proposed_successfully)) }
                 }

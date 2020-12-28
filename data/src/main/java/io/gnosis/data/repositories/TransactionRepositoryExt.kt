@@ -3,9 +3,9 @@ package io.gnosis.data.repositories
 import io.gnosis.contracts.GnosisSafe
 import io.gnosis.data.backend.GatewayApi
 import io.gnosis.data.backend.TransactionServiceApi
-import io.gnosis.data.models.Page
-import io.gnosis.data.models.core.CoreTransactionRequest
-import io.gnosis.data.models.core.SafeTransaction
+import io.gnosis.data.models.ext.CoreTransactionRequest
+import io.gnosis.data.models.ext.SafeTransaction
+import io.gnosis.data.models.ext.SendEthRequest
 import io.gnosis.data.utils.toSignatureString
 import pm.gnosis.crypto.KeyPair
 import pm.gnosis.crypto.utils.asEthereumAddressChecksumString
@@ -52,8 +52,8 @@ class TransactionRepositoryExt(
             ).param0.byteArray
         }
 
-    suspend fun proposeTransaction(safe: Solidity.Address, coreTransactionRequest: CoreTransactionRequest) =
-        transactionServiceApi.submitTransactions(safe.asEthereumAddressChecksumString(), coreTransactionRequest)
+    suspend fun proposeTransaction(safe: Solidity.Address, sendEthRequest: SendEthRequest) =
+        gatewayApi.sendEth(safe.asEthereumAddressChecksumString(), sendEthRequest)
 
     companion object {
         fun sign(ownerKey: BigInteger, hash: ByteArray): String =

@@ -1,4 +1,4 @@
-package io.gnosis.data.models.core
+package io.gnosis.data.models.ext
 
 import com.squareup.moshi.JsonClass
 import pm.gnosis.common.adapters.moshi.DecimalNumber

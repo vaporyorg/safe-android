@@ -1,4 +1,4 @@
-package io.gnosis.data.models.core
+package io.gnosis.data.models.ext
 
 import pm.gnosis.model.Solidity
 import pm.gnosis.utils.hexToByteArray
@@ -17,7 +17,8 @@ data class SafeTransaction(
     val refundreceiver: Solidity.Address,
     val _nonce: Solidity.UInt256
 ) {
-    fun toCoreTransaction(senderOwner: Solidity.Address, signature: String, transactionHash: String): CoreTransactionRequest =
+    @Deprecated("To send only eth use toSEndEthRequest and the gateway")
+    private fun toCoreTransaction(senderOwner: Solidity.Address, signature: String, transactionHash: String): CoreTransactionRequest =
         CoreTransactionRequest(
             to = to,
             value = value.value,
@@ -33,6 +34,18 @@ data class SafeTransaction(
             sender = senderOwner,
             signature = signature
         )
+
+    fun toSendEthRequest(senderOwner: Solidity.Address, signature: String, transactionHash: String): SendEthRequest =
+        SendEthRequest(
+            receiver = to,
+            value = value.value.toString(),
+            data = data.items.toHex(),
+            nonce = _nonce.value,
+            transactionHash = transactionHash,
+            sender = senderOwner,
+            signedTransactionHash = signature
+        )
+
 
     companion object {
         fun buildEthTransfer(receiver: Solidity.Address, value: BigInteger, nonce: BigInteger): SafeTransaction =
