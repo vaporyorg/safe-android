@@ -31,10 +31,20 @@ sealed class SendFundsRequest(val type: SendFundRequestType) {
         val signedTransactionHash: String,
         @DecimalNumber val nonce: BigInteger
     ) : SendFundsRequest(SendFundRequestType.Erc20)
+
+    @JsonClass(generateAdapter = true)
+    data class SendErc721Request(
+        val receiver: Solidity.Address,
+        val sender: Solidity.Address,
+        val data: String,
+        val transactionHash: String,
+        val signedTransactionHash: String,
+        @DecimalNumber val nonce: BigInteger
+    ) : SendFundsRequest(SendFundRequestType.Erc721)
 }
 
 enum class SendFundRequestType {
-    Ether, Erc20
+    Ether, Erc20, Erc721
 }
 
 object SolidityAddressParceler : Parceler<Solidity.Address> {

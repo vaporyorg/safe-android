@@ -1,6 +1,7 @@
 package io.gnosis.data.models.ext
 
 import io.gnosis.contracts.ERC20Contract
+import io.gnosis.contracts.ERC721
 import pm.gnosis.model.Solidity
 import pm.gnosis.utils.hexToByteArray
 import pm.gnosis.utils.toHex
@@ -39,6 +40,16 @@ data class SafeTransaction(
             signedTransactionHash = signature
         )
 
+    fun toSendErc721Request(senderOwner: Solidity.Address, signature: String, transactionHash: String): SendFundsRequest.SendErc721Request =
+        SendFundsRequest.SendErc721Request(
+            receiver = to,
+            data = data.items.toHex(),
+            nonce = nonce.value,
+            transactionHash = transactionHash,
+            sender = senderOwner,
+            signedTransactionHash = signature
+        )
+
     companion object {
         fun buildEthTransfer(receiver: Solidity.Address, value: BigInteger, nonce: BigInteger): SafeTransaction =
             SafeTransaction(
@@ -62,6 +73,32 @@ data class SafeTransaction(
                     ERC20Contract.Transfer.encode(
                         _to = receiver,
                         _value = Solidity.UInt256(amount)
+                    ).hexToByteArray()
+                ),
+                Solidity.UInt8(BigInteger.ZERO),
+                Solidity.UInt256(BigInteger.ZERO),
+                Solidity.UInt256(BigInteger.ZERO),
+                Solidity.UInt256(BigInteger.ZERO),
+                Solidity.Address(BigInteger.ZERO),
+                Solidity.Address(BigInteger.ZERO),
+                Solidity.UInt256(nonce)
+            )
+
+        fun buildErc721Transfer(
+            sender: Solidity.Address,
+            receiver: Solidity.Address,
+            tokenAddress: Solidity.Address,
+            amount: BigInteger,
+            nonce: BigInteger
+        ): SafeTransaction =
+            SafeTransaction(
+                tokenAddress,
+                Solidity.UInt256(BigInteger.ZERO),
+                Solidity.Bytes(
+                    ERC721.TransferFrom.encode(
+                        from = receiver,
+                        to = sender,
+                        tokenId = Solidity.UInt256(amount)
                     ).hexToByteArray()
                 ),
                 Solidity.UInt8(BigInteger.ZERO),

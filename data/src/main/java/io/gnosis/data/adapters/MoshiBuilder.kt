@@ -10,6 +10,7 @@ internal val sendFundsRequestAdapter =
     PolymorphicJsonAdapterFactory.of(SendFundsRequest::class.java, "type")
         .withSubtype(SendFundsRequest.SendEthRequest::class.java, "Ether")
         .withSubtype(SendFundsRequest.SendErc20Request::class.java, "Erc20")
+        .withSubtype(SendFundsRequest.SendErc721Request::class.java, "Erc721")
 
 internal val transferInfoAdapter =
     PolymorphicJsonAdapterFactory.of(TransferInfo::class.java, "type")

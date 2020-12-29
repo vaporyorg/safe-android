@@ -61,6 +61,7 @@ class SendFundsFragment : BaseViewBindingFragment<FragmentSendFundsBinding>() {
                 addressInputHelper.showDialog()
             }
             if (collectible != null) {
+                viewModel.selectedToken = Asset(collectible)
                 setupUiForErc721()
             } else {
                 setupUiForErc20()
@@ -120,7 +121,7 @@ class SendFundsFragment : BaseViewBindingFragment<FragmentSendFundsBinding>() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == TokenSelectorActivity.TOKEN_INFO_REQUEST_CODE) {
             val tokenInfo: TokenInfo? = data?.getParcelableExtra(TokenSelectorActivity.TOKEN_INFO_PARAM_NAME)
-            viewModel.selectedToken = tokenInfo
+            viewModel.selectedToken = Asset(tokenInfo)
             binding.tokenSymbol.setText(tokenInfo?.symbol)
         } else {
             addressInputHelper.handleResult(requestCode, resultCode, data)

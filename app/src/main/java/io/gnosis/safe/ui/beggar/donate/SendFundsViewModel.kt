@@ -1,6 +1,7 @@
 package io.gnosis.safe.ui.beggar.donate
 
 import androidx.annotation.StringRes
+import io.gnosis.data.models.assets.Collectible
 import io.gnosis.data.models.assets.TokenInfo
 import io.gnosis.data.models.assets.TokenType
 import io.gnosis.data.models.ext.SafeTransaction
@@ -26,7 +27,7 @@ class SendFundsViewModel
     appDispatchers: AppDispatchers
 ) : BaseStateViewModel<SendFundsState>(appDispatchers) {
 
-    var selectedToken: TokenInfo? = null
+    var selectedToken: Asset<*>? = null
 
     override fun initialState(): SendFundsState = SendFundsState(ViewAction.None)
 
@@ -37,7 +38,7 @@ class SendFundsViewModel
 
             val nonce = fetchCurrentSafeNonce(activeSafe)
 
-            val safeTransaction = buildSafeTransaction(receiver = receiver, amount = amount.toBigInteger(), nonce = nonce)
+            val safeTransaction = buildSafeTransaction(sender = activeSafe, receiver = receiver, amount = amount.toBigInteger(), nonce = nonce)
             val transactionHash = getTransactionHash(activeSafe, safeTransaction)
 
             val privateKey = ownerCredentialsRepository.retrieveCredentials() ?: throw NullOwnerKey
@@ -68,20 +69,22 @@ class SendFundsViewModel
         }
     }
 
-    private fun buildSafeTransaction(receiver: Solidity.Address, amount: BigInteger, nonce: BigInteger): SafeTransaction =
-        when (selectedToken?.tokenType) {
-            TokenType.ERC20 -> SafeTransaction.buildErc20Transfer(
+    private fun buildSafeTransaction(sender: Solidity.Address, receiver: Solidity.Address, amount: BigInteger, nonce: BigInteger): SafeTransaction =
+        when (val item = selectedToken?.item) {
+            is TokenInfo -> SafeTransaction.buildErc20Transfer(
                 receiver = receiver,
-                tokenAddress = selectedToken!!.address,
-                amount = amount.multiply(BigInteger.TEN.pow(selectedToken!!.decimals)),
+                tokenAddress = item.address,
+                amount = amount.multiply(BigInteger.TEN.pow(item.decimals)),
                 nonce = nonce
             )
+            is Collectible -> SafeTransaction.buildErc721Transfer(sender, receiver, item.address, item.id.toBigInteger(), nonce)
             else -> SafeTransaction.buildEthTransfer(receiver = receiver, value = amount, nonce = nonce)
         }
 
     private fun SafeTransaction.buildSendFundsTransfer(senderOwner: Solidity.Address, transactionHash: String, signature: String): SendFundsRequest =
-        when (selectedToken?.tokenType) {
-            TokenType.ERC20 -> this.toSendErc20Request(senderOwner = senderOwner, transactionHash = transactionHash, signature = signature)
+        when (selectedToken?.item) {
+            is TokenInfo -> this.toSendErc20Request(senderOwner = senderOwner, transactionHash = transactionHash, signature = signature)
+            is Collectible -> this.toSendErc721Request(senderOwner = senderOwner, transactionHash = transactionHash, signature = signature)
             else -> this.toSendEtherRequest(senderOwner = senderOwner, transactionHash = transactionHash, signature = signature)
         }
 
@@ -91,6 +94,8 @@ class SendFundsViewModel
             ?.run { throw CantTransfer }
     }
 }
+
+data class Asset<T>(val item: T)
 
 object CantTransfer : Throwable()
 object NullOwnerKey : Throwable()
