@@ -36,12 +36,12 @@ class TransactionRepositoryExt(
                                 value,
                                 data,
                                 operation,
-                                safetxgas,
-                                basegas,
-                                gasprice,
-                                gastoken,
-                                refundreceiver,
-                                _nonce
+                                safeTxGas,
+                                baseGas,
+                                gasPrice,
+                                gasToken,
+                                refundReceiver,
+                                nonce
                             )
                         )
                     )
@@ -49,7 +49,7 @@ class TransactionRepositoryExt(
             ).param0.byteArray
         }
 
-    suspend fun proposeTransaction(safe: Solidity.Address, sendEthRequest: SendFundsRequest.SendEthRequest) =
+    suspend fun proposeTransaction(safe: Solidity.Address, sendEthRequest: SendFundsRequest) =
         gatewayApi.sendEth(safe.asEthereumAddressChecksumString(), sendEthRequest)
 
     companion object {

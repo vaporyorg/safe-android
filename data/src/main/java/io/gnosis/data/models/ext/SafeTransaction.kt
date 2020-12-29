@@ -11,19 +11,29 @@ data class SafeTransaction(
     val value: Solidity.UInt256,
     val data: Solidity.Bytes,
     val operation: Solidity.UInt8,
-    val safetxgas: Solidity.UInt256,
-    val basegas: Solidity.UInt256,
-    val gasprice: Solidity.UInt256,
-    val gastoken: Solidity.Address,
-    val refundreceiver: Solidity.Address,
-    val _nonce: Solidity.UInt256
+    val safeTxGas: Solidity.UInt256,
+    val baseGas: Solidity.UInt256,
+    val gasPrice: Solidity.UInt256,
+    val gasToken: Solidity.Address,
+    val refundReceiver: Solidity.Address,
+    val nonce: Solidity.UInt256
 ) {
 
-    fun toSendEthRequest(senderOwner: Solidity.Address, signature: String, transactionHash: String): SendFundsRequest.SendEthRequest =
+    fun toSendEtherRequest(senderOwner: Solidity.Address, signature: String, transactionHash: String): SendFundsRequest.SendEthRequest =
         SendFundsRequest.SendEthRequest(
             receiver = to,
             value = value.value.toString(),
-            nonce = _nonce.value,
+            nonce = nonce.value,
+            transactionHash = transactionHash,
+            sender = senderOwner,
+            signedTransactionHash = signature
+        )
+
+    fun toSendErc20Request(senderOwner: Solidity.Address, signature: String, transactionHash: String): SendFundsRequest.SendErc20Request =
+        SendFundsRequest.SendErc20Request(
+            receiver = to,
+            data = data.items.toHex(),
+            nonce = nonce.value,
             transactionHash = transactionHash,
             sender = senderOwner,
             signedTransactionHash = signature
@@ -44,7 +54,7 @@ data class SafeTransaction(
                 Solidity.UInt256(nonce)
             )
 
-        fun buildErc20Transfer(receiver: Solidity.Address, amount: BigInteger, tokenAddress: Solidity.Address, nonce: BigInteger): SafeTransaction =
+        fun buildErc20Transfer(receiver: Solidity.Address, tokenAddress: Solidity.Address, amount: BigInteger, nonce: BigInteger): SafeTransaction =
             SafeTransaction(
                 tokenAddress,
                 Solidity.UInt256(BigInteger.ZERO),

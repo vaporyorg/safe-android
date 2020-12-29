@@ -2,7 +2,9 @@ package io.gnosis.safe.ui.beggar.donate
 
 import androidx.annotation.StringRes
 import io.gnosis.data.models.assets.TokenInfo
+import io.gnosis.data.models.assets.TokenType
 import io.gnosis.data.models.ext.SafeTransaction
+import io.gnosis.data.models.ext.SendFundsRequest
 import io.gnosis.data.repositories.SafeRepository
 import io.gnosis.data.repositories.TransactionRepositoryExt
 import io.gnosis.safe.R
@@ -10,6 +12,7 @@ import io.gnosis.safe.ui.base.AppDispatchers
 import io.gnosis.safe.ui.base.BaseStateViewModel
 import io.gnosis.safe.utils.OwnerCredentialsRepository
 import pm.gnosis.model.Solidity
+import pm.gnosis.utils.BigIntegerUtils
 import pm.gnosis.utils.addHexPrefix
 import pm.gnosis.utils.toHex
 import java.math.BigInteger
@@ -40,18 +43,12 @@ class SendFundsViewModel
             val privateKey = ownerCredentialsRepository.retrieveCredentials() ?: throw NullOwnerKey
             val signature = TransactionRepositoryExt.sign(privateKey.key, transactionHash)
 
-            val sendEthRequest = safeTransaction.toSendEthRequest(
+            val sendEthRequest = safeTransaction.buildSendFundsTransfer(
                 senderOwner = privateKey.address, transactionHash = transactionHash.toHex().addHexPrefix(), signature = signature.addHexPrefix()
             )
-            runCatching {
-                transactionRepositoryExt.proposeTransaction(activeSafe, sendEthRequest)
-            }
-                .onSuccess {
-                    updateState { SendFundsState(UserMessage(R.string.transaction_proposed_successfully)) }
-                }
-                .onFailure {
-                    updateState { SendFundsState(ViewAction.ShowError(it)) }
-                }
+            runCatching { transactionRepositoryExt.proposeTransaction(activeSafe, sendEthRequest) }
+                .onSuccess { updateState { SendFundsState(UserMessage(R.string.transaction_proposed_successfully)) } }
+                .onFailure { updateState { SendFundsState(ViewAction.ShowError(it)) } }
         }
     }
 
@@ -71,10 +68,22 @@ class SendFundsViewModel
         }
     }
 
-    private fun buildSafeTransaction(receiver: Solidity.Address, amount: BigInteger, nonce: BigInteger): SafeTransaction {
-        //TODO decide if it's Ether or Erc20
-        return SafeTransaction.buildEthTransfer(receiver = receiver, value = amount, nonce = nonce)
-    }
+    private fun buildSafeTransaction(receiver: Solidity.Address, amount: BigInteger, nonce: BigInteger): SafeTransaction =
+        when (selectedToken?.tokenType) {
+            TokenType.ERC20 -> SafeTransaction.buildErc20Transfer(
+                receiver = receiver,
+                tokenAddress = selectedToken!!.address,
+                amount = amount.multiply(BigInteger.TEN.pow(selectedToken!!.decimals)),
+                nonce = nonce
+            )
+            else -> SafeTransaction.buildEthTransfer(receiver = receiver, value = amount, nonce = nonce)
+        }
+
+    private fun SafeTransaction.buildSendFundsTransfer(senderOwner: Solidity.Address, transactionHash: String, signature: String): SendFundsRequest =
+        when (selectedToken?.tokenType) {
+            TokenType.ERC20 -> this.toSendErc20Request(senderOwner = senderOwner, transactionHash = transactionHash, signature = signature)
+            else -> this.toSendEtherRequest(senderOwner = senderOwner, transactionHash = transactionHash, signature = signature)
+        }
 
     private suspend fun verifyOwner(safe: Solidity.Address) {
         val safeInfo = safeRepository.getSafeInfo(safe)
