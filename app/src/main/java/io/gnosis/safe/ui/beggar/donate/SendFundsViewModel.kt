@@ -12,6 +12,7 @@ import io.gnosis.safe.utils.OwnerCredentialsRepository
 import pm.gnosis.model.Solidity
 import pm.gnosis.utils.addHexPrefix
 import pm.gnosis.utils.toHex
+import java.math.BigInteger
 import javax.inject.Inject
 
 class SendFundsViewModel
@@ -30,8 +31,8 @@ class SendFundsViewModel
         safeLaunch {
             val activeSafe = safeRepository.getActiveSafe()!!.address
             verifyOwner(activeSafe)
-            updateState { SendFundsState(UserMessage(R.string.retrieving_safe_nonce_on_chain)) }
-            val nonce = transactionRepositoryExt.getSafeNonce(activeSafe)
+
+            val nonce = fetchCurrentSafeNonce(activeSafe)
             updateState { SendFundsState(UserMessageWithArgs(R.string.retrieved_safe_nonce_on_chain, listOf(nonce.toString()))) }
 
             val safeTransaction = SafeTransaction.buildEthTransfer(receiver = receiver, value = amount.toBigInteger(), nonce = nonce)
@@ -54,6 +55,11 @@ class SendFundsViewModel
                     updateState { SendFundsState(ViewAction.ShowError(it)) }
                 }
         }
+    }
+
+    private suspend fun fetchCurrentSafeNonce(activeSafe: Solidity.Address): BigInteger {
+        updateState { SendFundsState(UserMessage(R.string.retrieving_safe_nonce_on_chain)) }
+        return transactionRepositoryExt.getSafeNonce(activeSafe)
     }
 
     private suspend fun verifyOwner(safe: Solidity.Address) {

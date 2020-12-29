@@ -17,23 +17,6 @@ data class SafeTransaction(
     val refundreceiver: Solidity.Address,
     val _nonce: Solidity.UInt256
 ) {
-    @Deprecated("To send only eth use toSEndEthRequest and the gateway")
-    private fun toCoreTransaction(senderOwner: Solidity.Address, signature: String, transactionHash: String): CoreTransactionRequest =
-        CoreTransactionRequest(
-            to = to,
-            value = value.value,
-            data = data.items.toHex(),
-            operation = operation.value,
-            gasToken = gastoken,
-            safeTxGas = safetxgas.value,
-            baseGas = basegas.value,
-            gasPrice = gasprice.value,
-            refundReceiver = refundreceiver,
-            nonce = _nonce.value,
-            contractTransactionHash = transactionHash,
-            sender = senderOwner,
-            signature = signature
-        )
 
     fun toSendEthRequest(senderOwner: Solidity.Address, signature: String, transactionHash: String): SendFundsRequest.SendEthRequest =
         SendFundsRequest.SendEthRequest(
@@ -44,7 +27,6 @@ data class SafeTransaction(
             sender = senderOwner,
             signedTransactionHash = signature
         )
-
 
     companion object {
         fun buildEthTransfer(receiver: Solidity.Address, value: BigInteger, nonce: BigInteger): SafeTransaction =
