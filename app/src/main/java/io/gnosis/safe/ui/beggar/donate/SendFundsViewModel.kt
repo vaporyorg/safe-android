@@ -33,11 +33,9 @@ class SendFundsViewModel
             verifyOwner(activeSafe)
 
             val nonce = fetchCurrentSafeNonce(activeSafe)
-            updateState { SendFundsState(UserMessageWithArgs(R.string.retrieved_safe_nonce_on_chain, listOf(nonce.toString()))) }
 
-            val safeTransaction = SafeTransaction.buildEthTransfer(receiver = receiver, value = amount.toBigInteger(), nonce = nonce)
-            val transactionHash = transactionRepositoryExt.sendEthTxHash(safe = activeSafe, safeTransaction = safeTransaction)
-            updateState { SendFundsState(UserMessageWithArgs(R.string.retrieved_transaction_hash_on_chain, listOf(transactionHash.toHex()))) }
+            val safeTransaction = buildSafeTransaction(receiver = receiver, amount = amount.toBigInteger(), nonce = nonce)
+            val transactionHash = getTransactionHash(activeSafe, safeTransaction)
 
             val privateKey = ownerCredentialsRepository.retrieveCredentials() ?: throw NullOwnerKey
             val signature = TransactionRepositoryExt.sign(privateKey.key, transactionHash)
@@ -57,9 +55,25 @@ class SendFundsViewModel
         }
     }
 
+    private suspend fun getTransactionHash(
+        activeSafe: Solidity.Address,
+        safeTransaction: SafeTransaction
+    ): ByteArray {
+        return transactionRepositoryExt.getTransactionHash(safe = activeSafe, safeTransaction = safeTransaction).also { transactionHash ->
+            updateState { SendFundsState(UserMessageWithArgs(R.string.retrieved_transaction_hash_on_chain, listOf(transactionHash.toHex()))) }
+        }
+    }
+
     private suspend fun fetchCurrentSafeNonce(activeSafe: Solidity.Address): BigInteger {
         updateState { SendFundsState(UserMessage(R.string.retrieving_safe_nonce_on_chain)) }
-        return transactionRepositoryExt.getSafeNonce(activeSafe)
+        return transactionRepositoryExt.getSafeNonce(activeSafe).also { nonce ->
+            updateState { SendFundsState(UserMessageWithArgs(R.string.retrieved_safe_nonce_on_chain, listOf(nonce.toString()))) }
+        }
+    }
+
+    private fun buildSafeTransaction(receiver: Solidity.Address, amount: BigInteger, nonce: BigInteger): SafeTransaction {
+        //TODO decide if it's Ether or Erc20
+        return SafeTransaction.buildEthTransfer(receiver = receiver, value = amount, nonce = nonce)
     }
 
     private suspend fun verifyOwner(safe: Solidity.Address) {

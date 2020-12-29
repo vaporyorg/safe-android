@@ -10,10 +10,7 @@ import pm.gnosis.utils.hexAsBigInteger
 import pm.gnosis.utils.toHexString
 import java.math.BigInteger
 
-sealed class SendFundsRequest {
-
-    @Json(name = "type")
-    abstract val type: SendFundRequestType
+sealed class SendFundsRequest(val type: SendFundRequestType) {
 
     @JsonClass(generateAdapter = true)
     data class SendEthRequest(
@@ -22,9 +19,8 @@ sealed class SendFundsRequest {
         val value: String,
         val transactionHash: String,
         val signedTransactionHash: String,
-        @DecimalNumber val nonce: BigInteger,
-        override val type: SendFundRequestType = SendFundRequestType.Ether
-    ) : SendFundsRequest()
+        @DecimalNumber val nonce: BigInteger
+    ) : SendFundsRequest(SendFundRequestType.Ether)
 
     @JsonClass(generateAdapter = true)
     data class SendErc20Request(
@@ -33,11 +29,9 @@ sealed class SendFundsRequest {
         val data: String,
         val transactionHash: String,
         val signedTransactionHash: String,
-        @DecimalNumber val nonce: BigInteger,
-        override val type: SendFundRequestType = SendFundRequestType.Erc20
-    ) : SendFundsRequest()
+        @DecimalNumber val nonce: BigInteger
+    ) : SendFundsRequest(SendFundRequestType.Erc20)
 }
-
 
 enum class SendFundRequestType {
     Ether, Erc20

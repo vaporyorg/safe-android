@@ -51,7 +51,7 @@ interface GatewayApi {
     @POST("/v1/transactions/{safeAddress}/eth_transfers")
     suspend fun sendEth(
         @Path("safeAddress") safeAddress: String,
-        @Body sendEthRequest: SendFundsRequest.SendEthRequest
+        @Body sendEthRequest: SendFundsRequest
     )
 
     companion object {
