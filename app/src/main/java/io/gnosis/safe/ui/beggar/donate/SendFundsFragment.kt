@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.google.android.material.snackbar.Snackbar
 import io.gnosis.data.models.assets.TokenInfo
 import io.gnosis.safe.R
@@ -17,6 +18,7 @@ import io.gnosis.safe.di.components.ViewComponent
 import io.gnosis.safe.errorSnackbar
 import io.gnosis.safe.helpers.AddressInputHelper
 import io.gnosis.safe.toError
+import io.gnosis.safe.ui.assets.collectibles.details.CollectiblesDetailsFragmentArgs
 import io.gnosis.safe.ui.base.BaseStateViewModel
 import io.gnosis.safe.ui.base.fragment.BaseViewBindingFragment
 import io.gnosis.safe.ui.beggar.token_selector.TokenSelectorActivity
@@ -29,9 +31,11 @@ class SendFundsFragment : BaseViewBindingFragment<FragmentSendFundsBinding>() {
 
     @Inject
     lateinit var viewModel: SendFundsViewModel
+    private val navArgs by navArgs<SendFundsFragmentArgs>()
     private val addressInputHelper by lazy {
         AddressInputHelper(this, tracker, ::updateAddress, errorCallback = ::handleError)
     }
+    private val collectible by lazy { navArgs.collectible }
 
     override fun inflateBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentSendFundsBinding =
         FragmentSendFundsBinding.inflate(inflater, container, false)
@@ -56,13 +60,28 @@ class SendFundsFragment : BaseViewBindingFragment<FragmentSendFundsBinding>() {
             toAddress.setOnClickListener {
                 addressInputHelper.showDialog()
             }
-            changeTokenButton.setOnClickListener {
-                startActivityForResult(
-                    TokenSelectorActivity.buildIntent(requireContext()),
-                    TokenSelectorActivity.TOKEN_INFO_REQUEST_CODE
-                )
+            if (collectible != null) {
+                setupUiForErc721()
+            } else {
+                setupUiForErc20()
             }
         }
+    }
+
+    private fun FragmentSendFundsBinding.setupUiForErc20() {
+        changeTokenButton.setOnClickListener {
+            startActivityForResult(
+                TokenSelectorActivity.buildIntent(requireContext()),
+                TokenSelectorActivity.TOKEN_INFO_REQUEST_CODE
+            )
+        }
+    }
+
+    private fun FragmentSendFundsBinding.setupUiForErc721() {
+        changeTokenButton.visible(false)
+        tokenAmountLayout.isEnabled = false
+        tokenSymbol.setText(collectible?.name.orEmpty())
+        tokenAmount.setText(collectible?.id.orEmpty())
     }
 
     override fun onStart() {
