@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Target
@@ -16,6 +17,8 @@ import io.gnosis.safe.ScreenId
 import io.gnosis.safe.databinding.FragmentCollectiblesDetailsBinding
 import io.gnosis.safe.di.components.ViewComponent
 import io.gnosis.safe.ui.base.fragment.BaseViewBindingFragment
+import io.gnosis.safe.ui.beggar.donate.SendFundsFragmentArgs
+import io.gnosis.safe.ui.beggar.donate.SendFundsFragmentDirections
 import io.gnosis.safe.utils.dpToPx
 import pm.gnosis.svalinn.common.utils.visible
 import pm.gnosis.utils.asEthereumAddress
@@ -31,6 +34,7 @@ class CollectiblesDetailsFragment : BaseViewBindingFragment<FragmentCollectibles
     private val description by lazy { navArgs.description }
     private val uri by lazy { navArgs.uri }
     private val imageUri by lazy { navArgs.imageUri }
+    private val collectible by lazy { navArgs.collectible }
 
     override fun inject(component: ViewComponent) {
         component.inject(this)
@@ -69,6 +73,14 @@ class CollectiblesDetailsFragment : BaseViewBindingFragment<FragmentCollectibles
 
             backButton.setOnClickListener {
                 Navigation.findNavController(it).navigateUp()
+            }
+
+            transferButton.setOnClickListener {
+                findNavController().navigate(
+                    CollectiblesDetailsFragmentDirections.actionCollectiblesDetailsFragmentToSendFundsFragment(
+                        collectible
+                    )
+                )
             }
         }
     }

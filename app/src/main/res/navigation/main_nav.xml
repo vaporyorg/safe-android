@@ -87,6 +87,17 @@
             app:argType="string"
             app:nullable="true" />
 
+        <argument
+            android:name="collectible"
+            android:defaultValue="@null"
+            app:argType="io.gnosis.data.models.assets.Collectible"
+            app:nullable="true" />
+        <action
+            android:id="@+id/action_collectiblesDetailsFragment_to_sendFundsFragment"
+            app:destination="@id/sendFundsFragment"
+            app:popUpTo="@id/collectiblesDetailsFragment"
+            app:popUpToInclusive="true"
+            app:launchSingleTop="true" />
     </fragment>
 
     <fragment
@@ -382,6 +393,12 @@
         android:id="@+id/sendFundsFragment"
         android:name="io.gnosis.safe.ui.beggar.donate.SendFundsFragment"
         android:label="SendFundsFragment"
-        tools:layout="@layout/fragment_send_funds" />
+        tools:layout="@layout/fragment_send_funds" >
+        <argument
+            android:name="collectible"
+            app:argType="io.gnosis.data.models.assets.Collectible"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
 
 </navigation>

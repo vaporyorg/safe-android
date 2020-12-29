@@ -53,8 +53,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingBottom="16dp"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingBottom="16dp">
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/collectible_image_container"
@@ -64,9 +64,9 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
+                android:visibility="gone"
                 app:cardBackgroundColor="@color/surface_01"
-                app:cardCornerRadius="8dp"
-                android:visibility="gone">
+                app:cardCornerRadius="8dp">
 
                 <ImageView
                     android:id="@+id/collectible_image"
@@ -81,8 +81,8 @@
                 style="@style/TextDark.Bold"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
                 android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp" />
 
             <TextView
@@ -90,8 +90,8 @@
                 style="@style/TextLight.Small"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
                 android:layout_marginStart="16dp"
+                android:layout_marginTop="6dp"
                 android:layout_marginEnd="16dp" />
 
             <TextView
@@ -99,8 +99,8 @@
                 style="@style/TextDark"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
                 android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp" />
 
             <View
@@ -114,8 +114,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/background_selectable_white"
-                app:show_named_address_separator="true"
-                />
+                app:show_named_address_separator="true" />
 
             <TextView
                 android:id="@+id/collectible_uri"
@@ -128,11 +127,24 @@
                 android:drawablePadding="6dp"
                 android:ellipsize="middle"
                 android:gravity="start|center_vertical"
-                tools:text="View on dappcon.io"
-                android:singleLine="true" />
+                android:singleLine="true"
+                tools:text="View on dappcon.io" />
 
         </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/transfer_button"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="end|bottom"
+        android:layout_margin="16dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:src="@drawable/ic_baseline_send_24"
+        android:tint="@color/white"
+        app:backgroundTint="@color/safe_green_dark"
+        app:layout_anchorGravity="bottom|right|end" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
