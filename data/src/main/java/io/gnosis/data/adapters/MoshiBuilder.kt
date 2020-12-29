@@ -2,8 +2,14 @@ package io.gnosis.data.adapters
 
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapters.PolymorphicJsonAdapterFactory
+import io.gnosis.data.models.ext.SendFundsRequest
 import io.gnosis.data.models.transaction.*
 import pm.gnosis.common.adapters.moshi.*
+
+internal val sendFundsRequestAdapter =
+    PolymorphicJsonAdapterFactory.of(SendFundsRequest::class.java, "type")
+        .withSubtype(SendFundsRequest.SendEthRequest::class.java, "Ether")
+        .withSubtype(SendFundsRequest.SendErc20Request::class.java, "Erc20")
 
 internal val transferInfoAdapter =
     PolymorphicJsonAdapterFactory.of(TransferInfo::class.java, "type")
@@ -59,5 +65,6 @@ val dataMoshi =
         .add(transactionInfoAdapter)
         .add(transactionExecutionDetailsAdapter)
         .add(txListEntryAdapter)
+        .add(sendFundsRequestAdapter)
         .add(ParamAdapter())
         .build()

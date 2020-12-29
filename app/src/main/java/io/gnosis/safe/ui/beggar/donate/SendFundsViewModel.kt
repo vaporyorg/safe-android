@@ -3,7 +3,6 @@ package io.gnosis.safe.ui.beggar.donate
 import androidx.annotation.StringRes
 import io.gnosis.data.models.assets.TokenInfo
 import io.gnosis.data.models.ext.SafeTransaction
-import io.gnosis.data.models.ext.SendEthRequest
 import io.gnosis.data.repositories.SafeRepository
 import io.gnosis.data.repositories.TransactionRepositoryExt
 import io.gnosis.safe.R

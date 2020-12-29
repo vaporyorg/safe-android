@@ -35,11 +35,10 @@ data class SafeTransaction(
             signature = signature
         )
 
-    fun toSendEthRequest(senderOwner: Solidity.Address, signature: String, transactionHash: String): SendEthRequest =
-        SendEthRequest(
+    fun toSendEthRequest(senderOwner: Solidity.Address, signature: String, transactionHash: String): SendFundsRequest.SendEthRequest =
+        SendFundsRequest.SendEthRequest(
             receiver = to,
             value = value.value.toString(),
-            data = data.items.toHex(),
             nonce = _nonce.value,
             transactionHash = transactionHash,
             sender = senderOwner,

@@ -4,7 +4,7 @@ import io.gnosis.data.BuildConfig
 import io.gnosis.data.models.Page
 import io.gnosis.data.models.assets.CoinBalances
 import io.gnosis.data.models.assets.Collectible
-import io.gnosis.data.models.ext.SendEthRequest
+import io.gnosis.data.models.ext.SendFundsRequest
 import io.gnosis.data.models.transaction.TransactionConfirmationRequest
 import io.gnosis.data.models.transaction.TransactionDetails
 import io.gnosis.data.models.transaction.TxListEntry
@@ -51,7 +51,7 @@ interface GatewayApi {
     @POST("/v1/transactions/{safeAddress}/eth_transfers")
     suspend fun sendEth(
         @Path("safeAddress") safeAddress: String,
-        @Body sendEthRequest: SendEthRequest
+        @Body sendEthRequest: SendFundsRequest.SendEthRequest
     )
 
     companion object {
