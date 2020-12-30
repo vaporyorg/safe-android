@@ -5,15 +5,16 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import io.gnosis.data.models.assets.TokenInfo
+import io.gnosis.data.repositories.TokenRepository
 import io.gnosis.safe.R
 import io.gnosis.safe.ScreenId
 import io.gnosis.safe.databinding.FragmentSendFundsBinding
 import io.gnosis.safe.di.components.ViewComponent
-import io.gnosis.safe.errorSnackbar
 import io.gnosis.safe.helpers.AddressInputHelper
 import io.gnosis.safe.toError
 import io.gnosis.safe.ui.base.BaseStateViewModel
@@ -21,6 +22,7 @@ import io.gnosis.safe.ui.base.fragment.BaseViewBindingFragment
 import io.gnosis.safe.ui.beggar.token_selector.TokenSelectorActivity
 import pm.gnosis.crypto.utils.asEthereumAddressChecksumString
 import pm.gnosis.model.Solidity
+import pm.gnosis.svalinn.common.utils.hideSoftKeyboard
 import pm.gnosis.svalinn.common.utils.visible
 import timber.log.Timber
 import javax.inject.Inject
@@ -29,6 +31,7 @@ class SendFundsFragment : BaseViewBindingFragment<FragmentSendFundsBinding>() {
 
     @Inject
     lateinit var viewModel: SendFundsViewModel
+    private lateinit var uiState: LiveData<SendFundsState>
 
     private val navArgs by navArgs<SendFundsFragmentArgs>()
     private val addressInputHelper by lazy {
@@ -48,23 +51,28 @@ class SendFundsFragment : BaseViewBindingFragment<FragmentSendFundsBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         with(binding) {
-            backButton.setOnClickListener { findNavController().navigateUp() }
-            sendButton.setOnClickListener {
-                progress.visible(true)
-                viewModel.sendTransaction(
-                    amount = tokenAmount.text.toString(),
-                    receiver = toAddress.address!!
-                )
-            }
-            toAddress.setOnClickListener {
-                addressInputHelper.showDialog()
-            }
+            baseUiSetup()
             if (collectible != null) {
                 viewModel.selectedToken = Asset(collectible)
                 setupUiForErc721()
             } else {
                 setupUiForErc20()
             }
+        }
+    }
+
+    private fun FragmentSendFundsBinding.baseUiSetup() {
+        backButton.setOnClickListener { findNavController().navigateUp() }
+        sendButton.setOnClickListener {
+            activity?.hideSoftKeyboard()
+            progress.visible(true)
+            viewModel.sendTransaction(
+                amount = tokenAmount.text?.toString(),
+                receiver = toAddress.address
+            )
+        }
+        toAddress.setOnClickListener {
+            addressInputHelper.showDialog()
         }
     }
 
@@ -90,9 +98,16 @@ class SendFundsFragment : BaseViewBindingFragment<FragmentSendFundsBinding>() {
         tokenAmount.setText(collectible?.id.orEmpty())
     }
 
+    override fun onStop() {
+        super.onStop()
+        activity?.hideSoftKeyboard()
+        uiState.removeObservers(viewLifecycleOwner)
+    }
+
     override fun onStart() {
         super.onStart()
-        viewModel.state.observe(viewLifecycleOwner, Observer {
+        uiState = viewModel.state()
+        uiState.observe(viewLifecycleOwner, Observer {
             when (val actionView = it.viewAction) {
                 is UserMessage -> logMessage(getString(actionView.messageId))
                 is UserMessageWithArgs -> {
@@ -101,14 +116,34 @@ class SendFundsFragment : BaseViewBindingFragment<FragmentSendFundsBinding>() {
                 }
                 is BaseStateViewModel.ViewAction.ShowError -> {
                     binding.progress.visible(false)
-                    val error = actionView.error.toError()
                     val message =
-                        if (actionView.error is CantTransfer) R.string.error_you_are_not_the_owner else R.string.error_description_send_funds
-                    errorSnackbar(requireView(), error.message(requireContext(), message))
-                    logMessage("An error has occurred...")
+                        when (actionView.error) {
+                            is CantTransfer -> R.string.error_you_are_not_the_owner
+                            is InvalidAmount -> R.string.error_invalid_amount_or_id
+                            is NullReceiver -> R.string.error_must_have_a_receiver
+                            else -> R.string.error_description_send_funds
+                        }
+                    logMessage("⚠️ An error has occurred...${getString(message)}")
                 }
             }
         })
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == TokenSelectorActivity.TOKEN_INFO_REQUEST_CODE) {
+            val tokenInfo: TokenInfo? = data?.getParcelableExtra(TokenSelectorActivity.TOKEN_INFO_PARAM_NAME)
+            viewModel.selectedToken = Asset(tokenInfo)
+            binding.tokenSymbol.setText(tokenInfo?.symbol)
+            logMultilineMessage(
+                "Token selected: ",
+                "- Symbol: ${tokenInfo?.symbol ?: TokenRepository.NATIVE_CURRENCY_INFO.symbol}",
+                "- Name: ${tokenInfo?.name ?: TokenRepository.NATIVE_CURRENCY_INFO.name}",
+                "- Address: ${tokenInfo?.address?.asEthereumAddressChecksumString() ?: TokenRepository.NATIVE_CURRENCY_INFO.address.asEthereumAddressChecksumString()}"
+            )
+        } else {
+            addressInputHelper.handleResult(requestCode, resultCode, data)
+        }
     }
 
     private fun handleError(throwable: Throwable, input: String? = null) {
@@ -120,31 +155,13 @@ class SendFundsFragment : BaseViewBindingFragment<FragmentSendFundsBinding>() {
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == TokenSelectorActivity.TOKEN_INFO_REQUEST_CODE) {
-            val tokenInfo: TokenInfo? = data?.getParcelableExtra(TokenSelectorActivity.TOKEN_INFO_PARAM_NAME)
-            viewModel.selectedToken = Asset(tokenInfo)
-            binding.tokenSymbol.setText(tokenInfo?.symbol)
-            logMultilineMessage(
-                "Token selected: ",
-                "- Symbol: ${tokenInfo?.symbol}",
-                "- Name: ${tokenInfo?.name}",
-                "- Address: ${tokenInfo?.address}"
-            )
-        } else {
-            addressInputHelper.handleResult(requestCode, resultCode, data)
-        }
-    }
-
     private fun updateAddress(address: Solidity.Address) {
         binding.toAddress.setNewAddress(address)
         logMessage("Updated receiver address: ${address.asEthereumAddressChecksumString()}")
     }
 
     private fun logMultilineMessage(vararg messages: String) {
-        val first = messages.first()
-        logMessage(first)
+        logMessage(messages.first())
         messages.takeLast(messages.size - 1).forEach { logMessage(" $it") }
     }
 

@@ -3,17 +3,17 @@ package io.gnosis.safe.ui.beggar.donate
 import androidx.annotation.StringRes
 import io.gnosis.data.models.assets.Collectible
 import io.gnosis.data.models.assets.TokenInfo
-import io.gnosis.data.models.assets.TokenType
 import io.gnosis.data.models.ext.SafeTransaction
 import io.gnosis.data.models.ext.SendFundsRequest
 import io.gnosis.data.repositories.SafeRepository
+import io.gnosis.data.repositories.TokenRepository
 import io.gnosis.data.repositories.TransactionRepositoryExt
 import io.gnosis.safe.R
 import io.gnosis.safe.ui.base.AppDispatchers
 import io.gnosis.safe.ui.base.BaseStateViewModel
+import io.gnosis.safe.ui.base.PublishViewModel
 import io.gnosis.safe.utils.OwnerCredentialsRepository
 import pm.gnosis.model.Solidity
-import pm.gnosis.utils.BigIntegerUtils
 import pm.gnosis.utils.addHexPrefix
 import pm.gnosis.utils.toHex
 import java.math.BigInteger
@@ -25,31 +25,32 @@ class SendFundsViewModel
     private val transactionRepositoryExt: TransactionRepositoryExt,
     private val ownerCredentialsRepository: OwnerCredentialsRepository,
     appDispatchers: AppDispatchers
-) : BaseStateViewModel<SendFundsState>(appDispatchers) {
+) : PublishViewModel<SendFundsState>(appDispatchers) {
 
     var selectedToken: Asset<*>? = null
 
-    override fun initialState(): SendFundsState = SendFundsState(ViewAction.None)
-
-    fun sendTransaction(amount: String, receiver: Solidity.Address) {
+    fun sendTransaction(amount: String?, receiver: Solidity.Address?) {
         safeLaunch {
-            val activeSafe = safeRepository.getActiveSafe()!!.address
-            verifyOwner(activeSafe)
+            runCatching {
+                val receiverAddress = receiver ?: throw NullReceiver
+                val amountBigInteger = amount?.toBigIntegerOrNull() ?: throw InvalidAmount
+                val activeSafe = safeRepository.getActiveSafe()!!.address
+                verifyOwner(activeSafe)
 
-            val nonce = fetchCurrentSafeNonce(activeSafe)
+                val nonce = fetchCurrentSafeNonce(activeSafe)
 
-            val safeTransaction = buildSafeTransaction(sender = activeSafe, receiver = receiver, amount = amount.toBigInteger(), nonce = nonce)
-            val transactionHash = getTransactionHash(activeSafe, safeTransaction)
+                val safeTransaction = buildSafeTransaction(sender = activeSafe, receiver = receiverAddress, amount = amountBigInteger, nonce = nonce)
+                val transactionHash = getTransactionHash(activeSafe, safeTransaction)
 
-            val privateKey = ownerCredentialsRepository.retrieveCredentials() ?: throw NullOwnerKey
-            val signature = TransactionRepositoryExt.sign(privateKey.key, transactionHash)
+                val privateKey = ownerCredentialsRepository.retrieveCredentials() ?: throw NullOwnerKey
+                val signature = TransactionRepositoryExt.sign(privateKey.key, transactionHash)
 
-            val sendEthRequest = safeTransaction.buildSendFundsTransfer(
-                senderOwner = privateKey.address, transactionHash = transactionHash.toHex().addHexPrefix(), signature = signature.addHexPrefix()
-            )
-            runCatching { transactionRepositoryExt.proposeTransaction(activeSafe, sendEthRequest) }
-                .onSuccess { updateState { SendFundsState(UserMessage(R.string.transaction_proposed_successfully)) } }
-                .onFailure { updateState { SendFundsState(ViewAction.ShowError(it)) } }
+                val sendFundsRequest = safeTransaction.buildSendFundsTransfer(
+                    senderOwner = privateKey.address, transactionHash = transactionHash.toHex().addHexPrefix(), signature = signature.addHexPrefix()
+                )
+                transactionRepositoryExt.proposeTransaction(activeSafe, sendFundsRequest)
+            }.onSuccess { updateState { SendFundsState(UserMessage(R.string.transaction_proposed_successfully)) } }
+                .onFailure { updateState { SendFundsState(BaseStateViewModel.ViewAction.ShowError(it)) } }
         }
     }
 
@@ -85,7 +86,11 @@ class SendFundsViewModel
                 nonce = nonce
             )
             is Collectible -> SafeTransaction.buildErc721Transfer(sender, receiver, item.address, item.id.toBigInteger(), nonce)
-            else -> SafeTransaction.buildEthTransfer(receiver = receiver, value = amount, nonce = nonce)
+            else -> SafeTransaction.buildEthTransfer(
+                receiver = receiver,
+                value = amount.multiply(BigInteger.TEN.pow(TokenRepository.NATIVE_CURRENCY_INFO.decimals)),
+                nonce = nonce
+            )
         }
 
     private fun SafeTransaction.buildSendFundsTransfer(senderOwner: Solidity.Address, transactionHash: String, signature: String): SendFundsRequest =
@@ -106,6 +111,8 @@ data class Asset<T>(val item: T)
 
 object CantTransfer : Throwable()
 object NullOwnerKey : Throwable()
+object NullReceiver : Throwable()
+object InvalidAmount : Throwable()
 
 data class UserMessage(@StringRes val messageId: Int) : BaseStateViewModel.ViewAction
 data class UserMessageWithArgs(@StringRes val messageId: Int, val arguments: List<Any>) : BaseStateViewModel.ViewAction

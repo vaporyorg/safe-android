@@ -58,6 +58,8 @@
     <string name="error_description_fiat">Failed to load supported fiat list</string>
     <string name="error_description_send_funds">Failed to send funds</string>
     <string name="error_you_are_not_the_owner">You are not the owner of this Safe</string>
+    <string name="error_invalid_amount_or_id">Invalid token amount or ID</string>
+    <string name="error_must_have_a_receiver">Must have a receiver</string>
 
     <string name="error_network_no_internet_reason">device is not connected to the Internet</string>
     <string name="error_network_no_internet_fix">Please try again when Internet is available</string>
