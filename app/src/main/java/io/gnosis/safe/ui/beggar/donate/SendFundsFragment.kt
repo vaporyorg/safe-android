@@ -29,6 +29,7 @@ class SendFundsFragment : BaseViewBindingFragment<FragmentSendFundsBinding>() {
 
     @Inject
     lateinit var viewModel: SendFundsViewModel
+
     private val navArgs by navArgs<SendFundsFragmentArgs>()
     private val addressInputHelper by lazy {
         AddressInputHelper(this, tracker, ::updateAddress, errorCallback = ::handleError)
@@ -138,6 +139,7 @@ class SendFundsFragment : BaseViewBindingFragment<FragmentSendFundsBinding>() {
 
     private fun updateAddress(address: Solidity.Address) {
         binding.toAddress.setNewAddress(address)
+        logMessage("Updated receiver address: ${address.asEthereumAddressChecksumString()}")
     }
 
     private fun logMultilineMessage(vararg messages: String) {
@@ -147,6 +149,11 @@ class SendFundsFragment : BaseViewBindingFragment<FragmentSendFundsBinding>() {
     }
 
     private fun logMessage(message: String) {
-        binding.logText.append("\n> $message")
+        with(binding) {
+            logText.append("\n> $message")
+            logScrollContainer.post {
+                logScrollContainer.fullScroll(View.FOCUS_DOWN)
+            }
+        }
     }
 }

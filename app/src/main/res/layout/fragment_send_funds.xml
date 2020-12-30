@@ -129,19 +129,23 @@
         android:layout_marginHorizontal="24dp"
         android:layout_marginTop="16dp"
         android:backgroundTint="@color/black"
+        android:clipToPadding="false"
+        android:elevation="4dp"
+        app:cardCornerRadius="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/to_address">
 
         <ScrollView
+            android:id="@+id/log_scroll_container"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom">
 
             <TextView
                 android:id="@+id/log_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="4dp"
                 android:textColor="@color/dusk"
