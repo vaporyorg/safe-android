@@ -47,9 +47,9 @@ class SendFundsViewModel
             val sendEthRequest = safeTransaction.buildSendFundsTransfer(
                 senderOwner = privateKey.address, transactionHash = transactionHash.toHex().addHexPrefix(), signature = signature.addHexPrefix()
             )
-//            runCatching { transactionRepositoryExt.proposeTransaction(activeSafe, sendEthRequest) }
-//                .onSuccess { updateState { SendFundsState(UserMessage(R.string.transaction_proposed_successfully)) } }
-//                .onFailure { updateState { SendFundsState(ViewAction.ShowError(it)) } }
+            runCatching { transactionRepositoryExt.proposeTransaction(activeSafe, sendEthRequest) }
+                .onSuccess { updateState { SendFundsState(UserMessage(R.string.transaction_proposed_successfully)) } }
+                .onFailure { updateState { SendFundsState(ViewAction.ShowError(it)) } }
         }
     }
 
