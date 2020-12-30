@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.google.android.material.snackbar.Snackbar
 import io.gnosis.data.models.assets.TokenInfo
 import io.gnosis.safe.R
 import io.gnosis.safe.ScreenId
@@ -78,9 +77,12 @@ class SendFundsFragment : BaseViewBindingFragment<FragmentSendFundsBinding>() {
     }
 
     private fun FragmentSendFundsBinding.setupUiForErc721() {
-        logMessage("Collectible name: ${collectible?.name}")
-        logMessage("Collectible ID: ${collectible?.id}")
-        logMessage("Collectible Address: ${collectible?.address?.asEthereumAddressChecksumString()}")
+        logMultilineMessage(
+            "Collectible selected: ",
+            "- Name: ${collectible?.name}",
+            "- ID: ${collectible?.id}",
+            "- Address: ${collectible?.address?.asEthereumAddressChecksumString()}"
+        )
         changeTokenButton.visible(false)
         tokenAmountLayout.isEnabled = false
         tokenSymbol.setText(collectible?.name.orEmpty())
@@ -123,6 +125,12 @@ class SendFundsFragment : BaseViewBindingFragment<FragmentSendFundsBinding>() {
             val tokenInfo: TokenInfo? = data?.getParcelableExtra(TokenSelectorActivity.TOKEN_INFO_PARAM_NAME)
             viewModel.selectedToken = Asset(tokenInfo)
             binding.tokenSymbol.setText(tokenInfo?.symbol)
+            logMultilineMessage(
+                "Token selected: ",
+                "- Symbol: ${tokenInfo?.symbol}",
+                "- Name: ${tokenInfo?.name}",
+                "- Address: ${tokenInfo?.address}"
+            )
         } else {
             addressInputHelper.handleResult(requestCode, resultCode, data)
         }
@@ -130,6 +138,12 @@ class SendFundsFragment : BaseViewBindingFragment<FragmentSendFundsBinding>() {
 
     private fun updateAddress(address: Solidity.Address) {
         binding.toAddress.setNewAddress(address)
+    }
+
+    private fun logMultilineMessage(vararg messages: String) {
+        val first = messages.first()
+        logMessage(first)
+        messages.takeLast(messages.size - 1).forEach { logMessage(" $it") }
     }
 
     private fun logMessage(message: String) {
