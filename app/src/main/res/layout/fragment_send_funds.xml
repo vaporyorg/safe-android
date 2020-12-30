@@ -148,6 +148,9 @@
                 android:layout_height="wrap_content"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="4dp"
+                android:lineSpacingExtra="2dp"
+                android:breakStrategy="high_quality"
+                android:textSize="11sp"
                 android:textColor="@color/dusk"
                 android:typeface="monospace"
                 tools:text="Super long text to see how the line wrap works in the mock view here..." />
