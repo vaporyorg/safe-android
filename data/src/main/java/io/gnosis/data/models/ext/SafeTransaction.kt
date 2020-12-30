@@ -88,7 +88,7 @@ data class SafeTransaction(
             sender: Solidity.Address,
             receiver: Solidity.Address,
             tokenAddress: Solidity.Address,
-            amount: BigInteger,
+            tokenId: BigInteger,
             nonce: BigInteger
         ): SafeTransaction =
             SafeTransaction(
@@ -96,9 +96,9 @@ data class SafeTransaction(
                 Solidity.UInt256(BigInteger.ZERO),
                 Solidity.Bytes(
                     ERC721.TransferFrom.encode(
-                        from = receiver,
-                        to = sender,
-                        tokenId = Solidity.UInt256(amount)
+                        from = sender,
+                        to = receiver,
+                        tokenId = Solidity.UInt256(tokenId)
                     ).hexToByteArray()
                 ),
                 Solidity.UInt8(BigInteger.ZERO),
