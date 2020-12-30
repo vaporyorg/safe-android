@@ -17,6 +17,7 @@ import io.gnosis.safe.errorSnackbar
 import io.gnosis.safe.toError
 import io.gnosis.safe.ui.base.BaseStateViewModel
 import io.gnosis.safe.ui.base.activity.BaseActivity
+import io.gnosis.safe.utils.BalanceFormatter
 import pm.gnosis.svalinn.common.utils.visible
 import timber.log.Timber
 import javax.inject.Inject
@@ -26,14 +27,16 @@ class TokenSelectorActivity : BaseActivity() {
 
     @Inject
     lateinit var viewModel: TokenSelectorViewModel
+    @Inject
+    lateinit var balanceFormatter: BalanceFormatter
 
     override fun screenId(): ScreenId? = null
 
     private val tokenSelectorAdapter by lazy {
-        TokenSelectorAdapter().apply {
-            onTokenSelectionListener = { token ->
+        TokenSelectorAdapter(balanceFormatter).apply {
+            onTokenSelectionListener = { tokenBalance ->
                 val resultIntent = Intent()
-                resultIntent.putExtra(TOKEN_INFO_PARAM_NAME, token)
+                resultIntent.putExtra(TOKEN_INFO_PARAM_NAME, tokenBalance.tokenInfo)
                 setResult(RESULT_OK, resultIntent)
                 finish()
             }

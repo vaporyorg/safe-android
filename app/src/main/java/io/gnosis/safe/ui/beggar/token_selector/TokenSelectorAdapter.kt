@@ -3,20 +3,21 @@ package io.gnosis.safe.ui.beggar.token_selector
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import io.gnosis.data.models.assets.TokenInfo
 import io.gnosis.safe.databinding.ItemTokenSelectionBinding
+import io.gnosis.safe.utils.BalanceFormatter
+import io.gnosis.safe.utils.convertAmount
 import io.gnosis.safe.utils.loadTokenLogo
+import java.math.BigInteger
 
+typealias OnTokenSelected = (tokenBalance) -> Unit
 
-typealias OnTokenSelected = (TokenInfo) -> Unit
-
-class TokenSelectorAdapter : RecyclerView.Adapter<TokenSelectorAdapter.TokenViewHolder>() {
+class TokenSelectorAdapter(private val balanceFormatter: BalanceFormatter) : RecyclerView.Adapter<TokenSelectorAdapter.TokenViewHolder>() {
 
     var onTokenSelectionListener: OnTokenSelected? = null
 
-    private var items: MutableList<TokenInfo> = mutableListOf()
+    private var items: MutableList<tokenBalance> = mutableListOf()
 
-    fun setItem(newItems: List<TokenInfo>) {
+    fun setItem(newItems: List<tokenBalance>) {
         items.clear()
         items.addAll(newItems)
         notifyDataSetChanged()
@@ -37,10 +38,12 @@ class TokenSelectorAdapter : RecyclerView.Adapter<TokenSelectorAdapter.TokenView
             binding.root.setOnClickListener { onTokenSelectionListener?.invoke(items[absoluteAdapterPosition]) }
         }
 
-        fun bind(tokenInfo: TokenInfo) {
+        fun bind(tokenBalance: tokenBalance) {
             with(binding) {
-                logo.loadTokenLogo(tokenInfo.logoUri)
-                tokenText.text = "${tokenInfo.symbol} - ${tokenInfo.name}"
+                logo.loadTokenLogo(tokenBalance.tokenInfo.logoUri)
+                tokenText.text = "${tokenBalance.tokenInfo.symbol} - ${tokenBalance.tokenInfo.name}"
+                val balance = balanceFormatter.shortAmount(tokenBalance.balance.convertAmount(tokenBalance.tokenInfo.decimals))
+                this.tokenBalance.text = "Current balance: $balance"
             }
         }
     }

@@ -21,11 +21,28 @@
 
     <TextView
         android:id="@+id/token_text"
+        style="@style/TextDark"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/token_balance"
+        app:layout_constraintStart_toEndOf="@id/logo"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:text="WETH - Wrapped ETH" />
+
+    <TextView
+        android:id="@+id/token_balance"
+        style="@style/TextLight"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/logo"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="WETH - Wrapped ETH" />
+        app:layout_constraintTop_toBottomOf="@id/token_text"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:text="Current balance: 12" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>
