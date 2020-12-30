@@ -48,7 +48,7 @@ interface GatewayApi {
     @GET
     suspend fun loadTransactionsPage(@Url pageLink: String): Page<TxListEntry>
 
-    @POST("/v1/transactions/{safeAddress}/eth_transfers")
+    @POST("/v1/transactions/{safeAddress}/transfers")
     suspend fun sendEth(
         @Path("safeAddress") safeAddress: String,
         @Body sendEthRequest: SendFundsRequest

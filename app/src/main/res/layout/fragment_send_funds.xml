@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -73,7 +74,7 @@
             android:id="@+id/token_symbol"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Token Symbol - Address"
+            android:hint="@string/token_symbol_symbol_name"
             android:text="ETH" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -81,8 +82,8 @@
         android:id="@+id/change_token_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
         android:layout_marginTop="6dp"
+        android:background="@android:color/transparent"
         android:padding="16dp"
         android:src="@drawable/ic_baseline_autorenew_24"
         android:tint="@color/blue_grey"
@@ -105,7 +106,7 @@
             android:id="@+id/token_amount"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Amount" />
+            android:hint="@string/amount_token_id" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <io.gnosis.safe.ui.safe.add.SafeInputView
@@ -116,9 +117,38 @@
         android:layout_marginVertical="4dp"
         android:orientation="vertical"
         app:address_hint="@string/send_funds_recipient_hint"
+        app:layout_constraintBottom_toTopOf="@id/log_container"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/token_amount_layout" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/log_container"
+        android:layout_width="0dp"
+        android:layout_height="90dp"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="@color/black"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/to_address">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/log_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="4dp"
+                android:textColor="@color/dusk"
+                android:typeface="monospace"
+                tools:text="Super long text to see how the line wrap works in the mock view here..." />
+        </ScrollView>
+    </androidx.cardview.widget.CardView>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/send_button"
